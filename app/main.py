@@ -4,7 +4,7 @@ from typing import List
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
-from .utils import is_order_email, extract_order_details
+from .utils import is_order_email, extract_order_details, check_email_status
 from .models import Order, Approval
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -57,7 +57,7 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
-    return templates.TemplateResponse("index.html", {"request": request, "emails": emails})
+    return templates.TemplateResponse("index.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
 @app.get("/orders")
 def list_orders(request: Request, db: Session = Depends(get_db)):

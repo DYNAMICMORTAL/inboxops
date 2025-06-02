@@ -5,6 +5,13 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from enum import Enum
+
+class EmailStatus(str, Enum):
+    NEW = "New"
+    AWAITING = "Awaiting"
+    AWAITING_APPROVAL = "Awaiting Approval"
+    CLOSED = "Closed"
 
 class Email(Base):
     __tablename__ = "emails"
@@ -19,6 +26,7 @@ class Email(Base):
     status = Column(String, default="received")
     type = Column(String, default="UNKNOWN")  # can be ORDER, APPROVAL, SPAM
     key = Column(String, unique=True)
+    status = Column(String, default=EmailStatus.NEW)
 
 class Order(Base):
     __tablename__ = "orders"

@@ -104,3 +104,31 @@ def extract_approval_details(body: str):
         "request_text": body.strip()
     }
 
+
+
+from datetime import datetime, timedelta
+from .models import EmailStatus
+
+def check_email_status(email) -> str:
+    """
+    Determine email status based on time and type
+    Args:
+        email: Email model instance
+    Returns:
+        str: Current status of the email
+    """
+    now = datetime.now(email.received_at.tzinfo)
+    one_minute_ago = now - timedelta(minutes=1)
+    
+    # New emails (less than 1 minute old)
+    if email.received_at > one_minute_ago:
+        return EmailStatus.NEW
+        
+    # Type-based status for older emails
+    if email.type == "SPAM":
+        return EmailStatus.CLOSED
+    elif email.type in ["ORDER", "APPROVAL"]:
+        return EmailStatus.AWAITING_APPROVAL
+    
+    # Default status for unclassified emails
+    return EmailStatus.AWAITING

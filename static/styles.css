@@ -173,4 +173,20 @@ footer {
 .badge-order { background: #dcfce7; color: #22c55e; }
 .badge-approval { background: #fef9c3; color: #f59e42; }
 .badge-spam { background: #fee2e2; color: #ef4444; }
-/* ...existing code... */
+.badge-info { 
+    background: #e0f2fe; 
+    color: #0284c7; 
+}
+
+.badge-primary { 
+    background: #e0e7ff; 
+    color: #4f46e5; 
+}
+
+.badge { 
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 999px;
+    font-size: 0.85em;
+    font-weight: 500;
+}

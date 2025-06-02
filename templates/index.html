@@ -16,6 +16,7 @@
                     <th>Title</th>
                     <th>Sender</th>
                     <th>Summary</th>
+                    <th>Status</th>
                     <th>Received</th>
                 </tr>
             </thead>
@@ -40,6 +41,10 @@
                         {% else %}
                             <span class="badge badge-warning">Processing...</span>
                         {% endif %}
+                    </td>
+                    <td>
+                        {% set status = check_email_status(email) %}
+                        <span class="badge badge-{{ status.lower() }}">{{ status }}</span>
                     </td>
                     <td class="text-muted">{{ email.received_at }}</td>
                 </tr>
