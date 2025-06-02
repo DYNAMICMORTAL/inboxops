@@ -4,6 +4,7 @@ from typing import List
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
+from .utils import is_order_email, extract_order_details
 
 from . import models, schemas, crud
 from .database import engine, SessionLocal
