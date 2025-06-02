@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Approvals</title></head>
+<body>
+  <h1>🧾 Pending Approvals</h1>
+  <table border="1">
+    <tr><th>ID</th><th>Sender</th><th>Type</th><th>Request</th><th>Status</th></tr>
+    {% for approval in approvals %}
+      <tr>
+        <td>{{ approval.id }}</td>
+        <td>{{ approval.sender }}</td>
+        <td>{{ approval.approval_type }}</td>
+        <td>{{ approval.request_text }}</td>
+        <td>{{ approval.status }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

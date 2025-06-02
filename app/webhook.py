@@ -2,8 +2,8 @@ from fastapi import APIRouter, Request, Depends, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from . import crud, schemas, ai
 from .database import SessionLocal
-from .models import Order
-from .utils import is_order_email, extract_order_details, generate_order_summary
+from .models import Order, Approval
+from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details
 from postmarker.core import PostmarkClient
 
 router = APIRouter()
@@ -90,6 +90,20 @@ async def inbound_email(
             return {"status": "✅ Order saved", "summary": summary}
 
         return {"status": "⚠️ Unrecognized order format"}
+    elif is_approval_email(email_data.subject, email_data.text_body):
+        details = extract_approval_details(email_data.text_body)
+        approval = Approval(
+            sender=email_data.from_email,
+            approval_type=details["approval_type"],
+            request_text=details["request_text"],
+            status="Pending"
+        )
+        db.add(approval)
+        db.commit()
+        db.refresh(approval)
+        print(f"[APPROVAL] Saved: {approval.approval_type} - {approval.status}")
+        return {"status": "approval saved", "approval_type": approval.approval_type}
+        
 
     # 3. For non-order emails, generate LLM summary
     if email_data.text_body:

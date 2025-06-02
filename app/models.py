@@ -26,3 +26,13 @@ class Order(Base):
     quantity = Column(Integer)
     summary = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Approval(Base):
+    __tablename__ = "approvals"
+    id = Column(Integer, primary_key=True, index=True)
+    sender = Column(String)
+    approval_type = Column(String)  # e.g., Leave, Budget
+    request_text = Column(String)
+    status = Column(String, default="Pending")  # Pending / Approved / Rejected
+    summary = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

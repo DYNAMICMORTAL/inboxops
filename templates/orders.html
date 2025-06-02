@@ -2,14 +2,29 @@
 <html lang="en">
 <head>
     <title>InboxOps - Orders</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>InboxOps Orders</h1>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fa-solid fa-inbox"></i> InboxOps
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" title="View Emails"><i class="fa-solid fa-envelope"></i> Emails</a></li>
+                <li><a href="/orders" class="active" title="View Orders"><i class="fa-solid fa-box"></i> Orders</a></li>
+            </ul>
+        </nav>
     </header>
     <div class="container">
-        <h2>Orders</h2>
+        <h2><i class="fa-solid fa-box"></i> Orders</h2>
+        {% if orders|length == 0 %}
+            <div class="card" style="text-align:center;">
+                <i class="fa-solid fa-box-open" style="font-size:2em;color:#64748b;"></i>
+                <p class="text-muted">No orders found yet.</p>
+            </div>
+        {% else %}
         <table class="table">
             <thead>
                 <tr>
@@ -24,9 +39,17 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
-                    <td>{{ order.customer }}</td>
-                    <td>{{ order.product }}</td>
-                    <td>{{ order.quantity }}</td>
+                    <td>
+                        <i class="fa-solid fa-user"></i>
+                        {{ order.customer }}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-cube"></i>
+                        {{ order.product }}
+                    </td>
+                    <td>
+                        <span class="badge badge-accent">{{ order.quantity }}</span>
+                    </td>
                     <td>
                         {% if order.summary %}
                             <span class="badge badge-success">{{ order.summary }}</span>
@@ -36,15 +59,16 @@
                     </td>
                     <td class="text-muted">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td>
-                      <a class="button" href="/orders/{{ order.id }}">View</a>
+                        <a class="button" href="/orders/{{ order.id }}" title="View Order"><i class="fa-solid fa-eye"></i> View</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
     </div>
     <footer>
-        &copy; 2025 InboxOps
+        &copy; 2025 InboxOps &mdash; <span class="text-muted">Automate your inbound email operations</span>
     </footer>
 </body>
 </html>

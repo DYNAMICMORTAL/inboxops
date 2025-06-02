@@ -91,3 +91,16 @@ def send_order_confirmation_email(to_email: str, order_id: str, summary: str):
         print("✅ Email sent:", response)
     except Exception as e:
         print("❌ Failed to send confirmation email:", str(e))
+
+
+def is_approval_email(subject: str, body: str) -> bool:
+    return "approval" in subject.lower() or "approve" in body.lower()
+
+def extract_approval_details(body: str):
+    # Basic rule-based extraction
+    approval_type = "Leave" if "leave" in body.lower() else "General"
+    return {
+        "approval_type": approval_type,
+        "request_text": body.strip()
+    }
+
