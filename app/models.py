@@ -17,6 +17,8 @@ class Email(Base):
     received_at = Column(DateTime(timezone=True), server_default=func.now())
     summary = Column(Text, nullable=True)
     status = Column(String, default="received")
+    type = Column(String, default="UNKNOWN")  # can be ORDER, APPROVAL, SPAM
+    key = Column(String, unique=True)
 
 class Order(Base):
     __tablename__ = "orders"

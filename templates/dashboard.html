@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>InboxOps Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📬 InboxOps Dashboard</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Customer</th>
+                    <th>Title</th>
+                    <th>Summary</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in tickets %}
+                <tr class="{{ item.type }}">
+                    <td>#{{ item.id }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.customer }}</td>
+                    <td>{{ item.title or '—' }}</td>
+                    <td>{{ item.summary[:80] }}...</td>
+                    <td><span class="status {{ item.status|lower|replace(' ', '-') }}">{{ item.status }}</span></td>
+                    <td>{{ item.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

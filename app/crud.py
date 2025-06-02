@@ -1,12 +1,32 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 from . import models, schemas
+from .webhook import is_order_email, is_approval_email
 
 def create_email(db: Session, email: schemas.EmailCreate):
+    date_num = datetime.now().strftime('%Y%m%d')
+    # Get count of emails of each type for today
+    count = db.query(models.Email).filter(
+        models.Email.received_at >= datetime.now().date()
+    ).count()
+    
+    # Determine email type and generate key
+    if is_order_email(email.subject, email.text_body):
+        email_type = "ORDER"
+        key = f"ODR-{date_num}{count+1:04d}"
+    elif is_approval_email(email.subject, email.text_body):
+        email_type = "APPROVAL"
+        key = f"APL-{date_num}{count+1:04d}"
+    else:
+        email_type = "SPAM"
+        key = "SPAM"
     db_email = models.Email(
         from_email=email.from_email,
         subject=email.subject,
         text_body=email.text_body,
         html_body=email.html_body,
+        type=email_type,
+        key=key
     )
     db.add(db_email)
     db.commit()

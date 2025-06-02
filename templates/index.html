@@ -5,23 +5,35 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <h1>InboxOps - Processed Emails</h1>
+    <h1>InboxOps</h1>
     <div class="container">
         <h2>Recent Emails</h2>
         <table class="table">
             <thead>
                 <tr>
-                    <th>From</th>
-                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Title</th>
+                    <th>Sender</th>
                     <th>Summary</th>
                     <th>Received</th>
                 </tr>
             </thead>
-            <tbody>
+                        <tbody>
                 {% for email in emails %}
                 <tr>
-                    <td>{{ email.from_email }}</td>
+                    <td>
+                        {% if email.type == "ORDER" %}
+                            <span class="badge badge-success">Order</span>
+                        {% elif email.type == "APPROVAL" %}
+                            <span class="badge badge-warning">Approval</span>
+                        {% else %}
+                            <span class="badge badge-danger">Spam</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ email.key }}</td>
                     <td>{{ email.subject }}</td>
+                    <td>{{ email.from_email }}</td>
                     <td>
                         {% if email.summary %}
                             <span class="badge badge-success">{{ email.summary }}</span>
