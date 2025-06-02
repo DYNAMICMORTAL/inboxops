@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+databases
+pydantic
+httpx
+python-dotenv
+openai
+jinja2  # if frontend templates
