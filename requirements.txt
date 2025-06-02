@@ -6,4 +6,8 @@ pydantic
 httpx
 python-dotenv
 openai
-jinja2  # if frontend templates
+jinja2
+postmarker
+ngrok
+google
+generativeai

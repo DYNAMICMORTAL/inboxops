@@ -1,0 +1,17 @@
+<!-- templates/order_detail.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Order #{{ order.id }}</title>
+<!-- In your base template, inside <head> -->
+<link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+  <h2>📝 Order Detail</h2>
+  <p><strong>ID:</strong> {{ order.id }}</p>
+  <p><strong>Customer:</strong> {{ order.customer }}</p>
+  <p><strong>Product:</strong> {{ order.product }}</p>
+  <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+  <p><strong>Summary:</strong><br>{{ order.summary }}</p>
+  <a href="/orders">← Back to list</a>
+</body>
+</html>

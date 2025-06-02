@@ -53,3 +53,41 @@ async def generate_order_summary(product: str, quantity: int) -> str:
             return "Summarization failed: No content generated."
     except Exception as e:
         return f"Error generating summary: {e}"
+    
+
+from postmarker.core import PostmarkClient
+
+# Your server token from Postmark (Dashboard > Servers > API Tokens)
+POSTMARK_TOKEN = "78a92885-74e3-42b0-8164-0b72fca59305"
+FROM_EMAIL = "10bb06248998326c0167cda19c82da62@inbound.postmarkapp.com"
+
+postmark = PostmarkClient(server_token=POSTMARK_TOKEN)
+
+def send_order_confirmation_email(to_email: str, order_id: str, summary: str):
+    try:
+        response = postmark.emails.send(
+            From=FROM_EMAIL,
+            To=to_email,
+            Subject=f"✅ Order {order_id} Confirmed!",
+            HtmlBody=f"""
+                <h2>Thank you for your order!</h2>
+                <p><strong>Order ID:</strong> {order_id}</p>
+                <p><strong>Summary:</strong><br>{summary}</p>
+                <p>We'll process and ship your order soon. Stay tuned!</p>
+                <br>
+                <p>— InboxOps</p>
+            """,
+            TextBody=f"""
+                Thank you for your order!
+
+                Order ID: {order_id}
+                Summary: {summary}
+
+                We'll process and ship your order soon.
+
+                — InboxOps
+            """
+        )
+        print("✅ Email sent:", response)
+    except Exception as e:
+        print("❌ Failed to send confirmation email:", str(e))

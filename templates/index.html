@@ -2,32 +2,38 @@
 <html>
 <head>
     <title>InboxOps - Processed Emails</title>
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
     <h1>InboxOps - Processed Emails</h1>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>From</th>
-                <th>Subject</th>
-                <th>Received At</th>
-                <th>Summary</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for email in emails %}
-            <tr>
-                <td>{{ email.id }}</td>
-                <td>{{ email.from_email }}</td>
-                <td>{{ email.subject }}</td>
-                <td>{{ email.received_at }}</td>
-                <td>{{ email.summary or 'Processing...' }}</td>
-                <td>{{ email.status }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container">
+        <h2>Recent Emails</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>Subject</th>
+                    <th>Summary</th>
+                    <th>Received</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>{{ email.from_email }}</td>
+                    <td>{{ email.subject }}</td>
+                    <td>
+                        {% if email.summary %}
+                            <span class="badge badge-success">{{ email.summary }}</span>
+                        {% else %}
+                            <span class="badge badge-warning">Processing...</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ email.received_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

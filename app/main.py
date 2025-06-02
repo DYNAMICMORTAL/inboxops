@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from .utils import is_order_email, extract_order_details
+from .models import Order
 
 from . import models, schemas, crud
 from .database import engine, SessionLocal
@@ -40,3 +41,13 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
 def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
     return templates.TemplateResponse("index.html", {"request": request, "emails": emails})
+
+@app.get("/orders")
+def list_orders(request: Request, db: Session = Depends(get_db)):
+    orders = db.query(Order).order_by(Order.created_at.desc()).all()
+    return templates.TemplateResponse("orders.html", {"request": request, "orders": orders})
+
+@app.get("/orders/{order_id}")
+def order_detail(order_id: int, request: Request, db=Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    return templates.TemplateResponse("order_detail.html", {"request": request, "order": order})
