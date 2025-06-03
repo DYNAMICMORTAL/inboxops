@@ -10,16 +10,24 @@ def create_email(db: Session, email: schemas.EmailCreate):
         models.Email.received_at >= datetime.now().date()
     ).count()
     
-    # Determine email type and generate key
-    if is_order_email(email.subject, email.text_body):
-        email_type = "ORDER"
-        key = f"ODR-{date_num}{count+1:04d}"
-    elif is_approval_email(email.subject, email.text_body):
-        email_type = "APPROVAL"
-        key = f"APL-{date_num}{count+1:04d}"
-    else:
-        email_type = "SPAM"
-        key = "SPAM"
+    while True:
+        # Determine email type and generate key
+        if is_order_email(email.subject, email.text_body):
+            email_type = "ORDER"
+            key = f"ODR-{date_num}{count+1:04d}"
+        elif is_approval_email(email.subject, email.text_body):
+            email_type = "APPROVAL"
+            key = f"APL-{date_num}{count+1:04d}"
+        else:
+            email_type = "SPAM"
+            key = "SPAM"
+
+        # Check if the key already exists
+        existing_email = db.query(models.Email).filter(models.Email.key == key).first()
+        if not existing_email:
+            break
+        count += 1  # Increment the counter if the key exists
+
     db_email = models.Email(
         from_email=email.from_email,
         subject=email.subject,
@@ -47,3 +55,31 @@ def update_email_summary(db: Session, email_id: int, summary: str, status: str =
         db.commit()
         db.refresh(email)
     return email
+
+
+from sqlalchemy.orm import Session
+from .models import Approval
+from .utils import extract_approval_details
+
+def create_approval_from_email(email, db: Session):
+    """
+    Create an Approval object from an email and save it to the database.
+    """
+    # Extract approval details from the email body
+    approval_details = extract_approval_details(email.text_body)
+
+    # Debugging
+    print(f"Saving Approval: Start Date: {approval_details['start_date']}, End Date: {approval_details['end_date']}")
+
+    new_approval = Approval(
+        sender=email.from_email,
+        approval_type=approval_details["approval_type"],
+        request_text=approval_details["request_text"],
+        start_date=approval_details["start_date"],
+        end_date=approval_details["end_date"],
+        created_at=email.received_at,
+    )
+    db.add(new_approval)
+    db.commit()
+    db.refresh(new_approval)
+    return new_approval

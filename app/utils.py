@@ -128,12 +128,40 @@ def is_approval_email(subject: str, body: str) -> bool:
     text = f"{subject} {body}".lower()
     return any(keyword in text for keyword in approval_keywords)
 
+from datetime import datetime
+import re
+
 def extract_approval_details(body: str):
+    # Extract dates in "YYYY-MM-DD" format
+    date_pattern_iso = r"(\d{4}-\d{2}-\d{2})"
+    dates_iso = re.findall(date_pattern_iso, body)
+
+    # Extract dates in "Month Day, Year" format (e.g., June 10, 2025)
+    date_pattern_text = r"([A-Za-z]+ \d{1,2}, \d{4})"
+    dates_text = re.findall(date_pattern_text, body)
+
+    start_date = None
+    end_date = None
+
+    # Parse ISO format dates
+    if len(dates_iso) >= 2:
+        start_date = datetime.strptime(dates_iso[0], "%Y-%m-%d")
+        end_date = datetime.strptime(dates_iso[1], "%Y-%m-%d")
+    # Parse text format dates
+    elif len(dates_text) >= 2:
+        start_date = datetime.strptime(dates_text[0], "%B %d, %Y")
+        end_date = datetime.strptime(dates_text[1], "%B %d, %Y")
+
+    # Debugging
+    print(f"Extracted Start Date: {start_date}, End Date: {end_date}")
+
     # Basic rule-based extraction
     approval_type = "Leave" if "leave" in body.lower() else "General"
     return {
         "approval_type": approval_type,
-        "request_text": body.strip()
+        "request_text": body.strip(),
+        "start_date": start_date,
+        "end_date": end_date,
     }
 
 

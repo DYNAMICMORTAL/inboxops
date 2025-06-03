@@ -49,6 +49,8 @@ class Approval(Base):
     request_text = Column(String)
     status = Column(String, default="Pending")  # Pending / Approved / Rejected
     summary = Column(Text, nullable=True)
+    start_date = Column(DateTime, nullable=True)  # Add start_date
+    end_date = Column(DateTime, nullable=True)    # Add end_date
     created_at = Column(DateTime, default=datetime.utcnow)
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, func

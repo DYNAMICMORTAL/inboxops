@@ -104,6 +104,7 @@ Dashboard - InboxOps
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for approval in approvals %}
         <a href="/approvals/{{ approval.id }}" class="approval-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105">
+            <!-- Approval Header -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,18 +114,42 @@ Dashboard - InboxOps
                 </div>
                 <span class="badge badge-under-review">Under Review</span>
             </div>
+
+            <!-- Employee Information -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Employee</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.sender }}</p>
             </div>
+
+            <!-- Request Type -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Request Type</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.approval_type }}</p>
             </div>
+
+            <!-- Description -->
             <div class="mb-4 p-4 bg-purple-50 rounded-lg shadow-sm">
                 <h3 class="text-sm font-semibold text-purple-600 mb-1">Description</h3>
                 <p class="text-sm text-gray-700">{{ approval.request_text }}</p>
             </div>
+
+                        <!-- Start and End Dates -->
+            <div class="mb-4 flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-gray-500">Start</p>
+                    <p class="font-semibold text-lg text-gray-800">
+                        {{ approval.start_date.strftime('%Y-%m-%d') if approval.start_date }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">End</p>
+                    <p class="font-semibold text-lg text-gray-800">
+                        {{ approval.end_date.strftime('%Y-%m-%d') if approval.end_date }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- SLA and Tags -->
             <div class="flex items-center justify-between text-sm text-gray-500">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

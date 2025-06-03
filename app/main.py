@@ -89,8 +89,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     orders_dict = [order.__dict__ for order in orders]
     emails_dict = [email.__dict__ for email in emails]
 
-    print("Orders:", orders_dict)
-    print("Emails:", emails_dict)
+    # print("Orders:", orders_dict)
+    # print("Emails:", emails_dict)
     return templates.TemplateResponse(
         "dashboard.html",
         {
@@ -157,6 +157,7 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
     elif page == "dashboard":
         orders = db.query(Order).order_by(Order.id.desc()).all()
         approvals = db.query(Approval).order_by(Approval.id.desc()).all()
+        emails = db.query(Email).order_by(Email.received_at.desc()).all()
         return templates.TemplateResponse(
             "dashboard.html",
             {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date},
