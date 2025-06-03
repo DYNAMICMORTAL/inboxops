@@ -5,10 +5,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from .utils import is_order_email, extract_order_details, check_email_status
-from .models import Order, Approval
+from .models import Order, Approval, Email
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from app.utils import check_email_status
 # ...existing code...
 
 from . import models, schemas, crud
@@ -43,6 +44,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.templating import Jinja2Templates
+from app.utils import format_date
+
+templates = Jinja2Templates(directory="templates")
+templates.env.filters["date"] = format_date
+
 @app.get("/emails", response_model=List[schemas.Email])
 def list_emails(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_emails(db, skip=skip, limit=limit)
@@ -59,15 +66,28 @@ def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
     return templates.TemplateResponse("index.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
     orders = db.query(Order).order_by(Order.id.desc()).limit(10).all()
+    emails = crud.get_emails(db, limit=20)
     approvals = db.query(Approval).order_by(Approval.id.desc()).limit(10).all()
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "orders": orders,
-        "approvals": approvals
-    })
+    orders_dict = [order.__dict__ for order in orders]
+    emails_dict = [email.__dict__ for email in emails]
+
+    print("Orders:", orders_dict)
+    print("Emails:", emails_dict)
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "orders": orders,
+            "approvals": approvals,
+            "emails": emails,
+            "format_date": format_date,
+            "check_email_status": check_email_status,  # Pass the function to the template
+        },
+    )
 
 @app.get("/orders")
 def list_orders(request: Request, db: Session = Depends(get_db)):

@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal
 
 def is_order_email(subject: str, body: str) -> bool:
     order_keywords = ['order', 'purchase', 'new order']
@@ -7,14 +8,16 @@ def is_order_email(subject: str, body: str) -> bool:
 def extract_order_details(body: str) -> dict:
     # This is mock logic, you can replace with OpenAI LLM later
     # For now, extract product and quantity using simple pattern
-    match = re.search(r"Product: (.*?), Quantity: (\d+)", body)
+    match = re.search(r"Product: (.*?), Quantity: (\d+), USD\s*([\d,]+\.\d{2})", body)
     if match:
         product = match.group(1).strip()
         quantity = int(match.group(2).strip())
+        total_value = Decimal(match.group(1).replace(",", ""))
         return {
             "product": product,
             "quantity": quantity,
-            "customer": "Unknown"  # Can improve with LLM later
+            "customer": "Unknown",  # Can improve with LLM later
+            "total_value": total_value
         }
     return None
 
@@ -161,3 +164,18 @@ def check_email_status(email) -> str:
     
     # Default status for unclassified emails
     return EmailStatus.AWAITING
+
+from datetime import datetime
+
+def format_date(value, format="%b %d, %I:%M %p"):
+    """
+    Custom Jinja2 filter to format dates.
+    Args:
+        value: The datetime object to format.
+        format: The format string (default: "MMM d, h:mm A").
+    Returns:
+        str: The formatted date string.
+    """
+    if isinstance(value, datetime):
+        return value.strftime(format)
+    return value

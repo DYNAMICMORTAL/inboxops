@@ -190,3 +190,38 @@ footer {
     font-size: 0.85em;
     font-weight: 500;
 }
+.order-card, .approval-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover, .approval-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 999px;
+    font-size: 0.75em;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.badge-confirmed {
+    background: #e0fce4;
+    color: #22c55e;
+}
+
+.badge-tag {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Progress bar */
+.progress-bar {
+    background-color: #000;
+    height: 0.5rem;
+    border-radius: 999px;
+}

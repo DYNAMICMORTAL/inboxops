@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
 from .database import Base
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
@@ -36,6 +36,8 @@ class Order(Base):
     quantity = Column(Integer)
     summary = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    key = Column(String, unique=True)
+    total_value = Column(Float, nullable=True)
 
 class Approval(Base):
     __tablename__ = "approvals"
