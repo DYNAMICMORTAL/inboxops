@@ -27,8 +27,27 @@ api_key = os.getenv("GOOGLE_API_KEY", "AIzaSyB6SX989AFFnpD__XOi2Zcrg1RFPy35BsA")
 genai.configure(api_key=api_key)
 
 def is_order_email(subject: str, body: str) -> bool:
-    keywords = ['order', 'purchase', 'new order']
-    return any(k in subject.lower() for k in keywords)
+    """
+    Improved order email detection using more keywords and patterns.
+    """
+    order_keywords = [
+        'order', 'purchase', 'new order', 'placed an order', 'buy', 'buying', 'bought',
+        'invoice', 'payment received', 'your order', 'order confirmation',
+        'order number', 'order id', 'order#', 'order #', 'transaction', 'receipt',
+        'shipping', 'delivery', 'dispatched', 'fulfilled', 'processing order',
+        'thank you for your order', 'your items', 'your products', 'your purchase'
+    ]
+    # Regex for order/invoice numbers (e.g., Order #12345, Invoice: 98765)
+    patterns = [
+        r'order[\s#:]*\d+', r'invoice[\s#:]*\d+', r'order id[\s#:]*\d+'
+    ]
+    text = f"{subject} {body}".lower()
+    if any(keyword in text for keyword in order_keywords):
+        return True
+    for pat in patterns:
+        if re.search(pat, text):
+            return True
+    return False
 
 def extract_order_details(body: str) -> dict:
     match = re.search(r"Product: (.*?), Quantity: (\d+)", body)
@@ -94,7 +113,17 @@ def send_order_confirmation_email(to_email: str, order_id: str, summary: str):
 
 
 def is_approval_email(subject: str, body: str) -> bool:
-    return "approval" in subject.lower() or "approve" in body.lower()
+    """
+    Improved approval email detection using more keywords and phrases.
+    """
+    approval_keywords = [
+        'approval', 'approve', 'request approval', 'needs approval', 'pending approval',
+        'please approve', 'seeking approval', 'awaiting approval', 'approved',
+        'request for approval', 'approval needed', 'requires approval', 'grant approval',
+        'manager approval', 'supervisor approval', 'access request', 'permission request'
+    ]
+    text = f"{subject} {body}".lower()
+    return any(keyword in text for keyword in approval_keywords)
 
 def extract_approval_details(body: str):
     # Basic rule-based extraction

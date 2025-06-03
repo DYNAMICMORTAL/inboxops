@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from .utils import is_order_email, extract_order_details, check_email_status
@@ -59,6 +59,16 @@ def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
     return templates.TemplateResponse("index.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request, db: Session = Depends(get_db)):
+    orders = db.query(Order).order_by(Order.id.desc()).limit(10).all()
+    approvals = db.query(Approval).order_by(Approval.id.desc()).limit(10).all()
+    return templates.TemplateResponse("dashboard.html", {
+        "request": request,
+        "orders": orders,
+        "approvals": approvals
+    })
+
 @app.get("/orders")
 def list_orders(request: Request, db: Session = Depends(get_db)):
     orders = db.query(Order).order_by(Order.created_at.desc()).all()
@@ -76,3 +86,25 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def list_approvals(request: Request, db=Depends(get_db)):
     approvals = db.query(Approval).all()
     return templates.TemplateResponse("approvals.html", {"request": request, "approvals": approvals})
+
+@app.get("/approvals/{approval_id}", response_class=HTMLResponse)
+def view_approval(approval_id: int, request: Request, db: Session = Depends(get_db)):
+    approval = db.query(Approval).filter(Approval.id == approval_id).first()
+    return templates.TemplateResponse("approval_detail.html", {
+        "request": request,
+        "approval": approval
+    })
+
+@app.post("/approvals/{approval_id}/approve")
+def approve_approval(approval_id: int, db: Session = Depends(get_db)):
+    approval = db.query(Approval).filter(Approval.id == approval_id).first()
+    approval.status = "Approved"
+    db.commit()
+    return RedirectResponse(url="/dashboard", status_code=302)
+
+@app.post("/approvals/{approval_id}/reject")
+def reject_approval(approval_id: int, db: Session = Depends(get_db)):
+    approval = db.query(Approval).filter(Approval.id == approval_id).first()
+    approval.status = "Rejected"
+    db.commit()
+    return RedirectResponse(url="/dashboard", status_code=302)

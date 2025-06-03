@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-white flex flex-col">
+    <div class="p-4 text-2xl font-bold">InboxOps</div>
+    <nav class="flex-1 px-2 py-4">
+      <a href="/dashboard" class="block px-4 py-2 hover:bg-gray-800 rounded">Dashboard</a>
+      <a href="/orders" class="block px-4 py-2 hover:bg-gray-800 rounded">Orders</a>
+      <a href="/approvals" class="block px-4 py-2 hover:bg-gray-800 rounded">Approvals</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 bg-gray-100 overflow-auto">
+    <header class="bg-white shadow p-4">
+      <h1 class="text-xl font-semibold">InboxOps Dashboard</h1>
+    </header>
+    <section class="p-4">
+      {% block dashboard_content %}{% endblock %}
+    </section>
+  </main>
+</div>
+{% endblock %}

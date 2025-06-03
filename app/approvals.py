@@ -1,27 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, status
 from sqlalchemy.orm import Session
-from app import crud, schemas, database, main
+from app.database import get_db
+from app import models, crud
 
-router = APIRouter(prefix="/approvals", tags=["Approvals"])
+router = APIRouter()
 
-@router.post("/", response_model=schemas.ApprovalOut)
-def create_approval(
-    approval: schemas.ApprovalCreate,
-    db: Session = Depends(main.get_db)
-):
-    return crud.create_approval(db, approval)
-
-@router.get("/", response_model=list[schemas.ApprovalOut])
-def list_approvals(db: Session = Depends(main.get_db)):
-    return crud.get_all_approvals(db)
-
-@router.patch("/{approval_id}", response_model=schemas.ApprovalOut)
-def update_status(
-    approval_id: int,
-    status: schemas.ApprovalStatus,
-    db: Session = Depends(main.get_db)
-):
-    approval = crud.update_approval_status(db, approval_id, status)
+@router.post("/approvals/{approval_id}/approve")
+def approve_approval(approval_id: int, db: Session = Depends(get_db)):
+    approval = db.query(models.Approval).get(approval_id)
     if not approval:
-        raise HTTPException(status_code=404, detail="Approval not found")
-    return approval
+        return {"error": "Approval not found"}
+    approval.status = "approved"
+    db.commit()
+    return {"status": "approved"}
+
+@router.post("/approvals/{approval_id}/reject")
+def reject_approval(approval_id: int, db: Session = Depends(get_db)):
+    approval = db.query(models.Approval).get(approval_id)
+    if not approval:
+        return {"error": "Approval not found"}
+    approval.status = "rejected"
+    db.commit()
+    return {"status": "rejected"}
