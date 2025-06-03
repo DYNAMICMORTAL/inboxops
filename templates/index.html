@@ -1,16 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Inbox - InboxOps
+{% endblock %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>InboxOps - Processed Emails</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        input[type="checkbox"] {
+            width: 20px; /* Increase width */
+            height: 20px; /* Increase height */
+            cursor: pointer; /* Add pointer cursor */
+            border: 2px solid #ccc; /* Add a border */
+            border-radius: 4px; /* Add rounded corners */
+            transition: box-shadow 0.2s ease; /* Smooth transition for hover effect */
+            position: relative;
+        }
+        /* Hover effect for checkboxes */
+        input[type="checkbox"]:hover {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Mild grey circle */
+            background-color: rgba(0, 0, 0, 0.4); /* Light grey background inside checkbox */
+        }
+        /* Highlight row when checkbox is selected */
+        .email-row.selected {
+            background-color: #e3f2fd; /* Light blue */
+        }
+
+        .email-row:hover {
+            background-color: #f1f1f1; /* Light gray on hover */
+        }
+    </style>
 </head>
 <body>
-    <h1>InboxOps</h1>
     <div class="container">
         <h2>Recent Emails</h2>
         <table class="table">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="select-all" /></th>
                     <th>Type</th>
                     <th>Key</th>
                     <th>Title</th>
@@ -20,9 +51,12 @@
                     <th>Received</th>
                 </tr>
             </thead>
-                        <tbody>
+            <tbody>
                 {% for email in emails %}
-                <tr>
+                <tr class="email-row">
+                    <td>
+                        <input type="checkbox" class="email-checkbox" />
+                    </td>
                     <td>
                         {% if email.type == "ORDER" %}
                             <span class="badge badge-success">Order</span>
@@ -46,11 +80,42 @@
                         {% set status = check_email_status(email) %}
                         <span class="badge badge-{{ status.lower() }}">{{ status }}</span>
                     </td>
-                    <td class="text-muted">{{ email.received_at }}</td>
+                    <td class="text-muted">
+    {% if email.received_at %}
+        {% if email.received_at.date() == now().date() %}
+            {{ email.received_at.strftime("%I:%M %p") }} <!-- Show time if today -->
+        {% else %}
+            {{ email.received_at.strftime("%b %d") }} <!-- Show month and day if older -->
+        {% endif %}
+    {% else %}
+        Unknown
+    {% endif %}
+</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <script>
+        // Select all checkboxes
+        const selectAllCheckbox = document.getElementById('select-all');
+        const emailCheckboxes = document.querySelectorAll('.email-checkbox');
+        const emailRows = document.querySelectorAll('.email-row');
+
+        selectAllCheckbox.addEventListener('change', function () {
+            emailCheckboxes.forEach((checkbox, index) => {
+                checkbox.checked = this.checked;
+                emailRows[index].classList.toggle('selected', this.checked);
+            });
+        });
+
+        // Highlight individual rows when checkboxes are selected
+        emailCheckboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener('change', function () {
+                emailRows[index].classList.toggle('selected', this.checked);
+            });
+        });
+    </script>
 </body>
 </html>
+{% endblock %}

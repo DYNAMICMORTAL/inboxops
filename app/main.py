@@ -46,9 +46,23 @@ app.add_middleware(
 
 from fastapi.templating import Jinja2Templates
 from app.utils import format_date
+from jinja2 import Environment, FileSystemLoader
+from datetime import datetime
 
 templates = Jinja2Templates(directory="templates")
 templates.env.filters["date"] = format_date
+templates.env.globals["now"] = datetime.now  # Add `now` to Jinja2 globals
+
+from datetime import datetime
+
+def format_received_time(received_at):
+    now = datetime.now()
+    if received_at.date() == now.date():
+        # If the email was received today, show the time (e.g., 10:31 AM)
+        return received_at.strftime("%I:%M %p")
+    else:
+        # If the email was received on a different day, show the month and day (e.g., Jun 2)
+        return received_at.strftime("%b %d")
 
 @app.get("/emails", response_model=List[schemas.Email])
 def list_emails(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -128,3 +142,26 @@ def reject_approval(approval_id: int, db: Session = Depends(get_db)):
     approval.status = "Rejected"
     db.commit()
     return RedirectResponse(url="/dashboard", status_code=302)
+
+
+@app.get("/u", response_class=HTMLResponse)
+def unified_view(request: Request, page: str = "inbox", db: Session = Depends(get_db)):
+    if page == "inbox":
+        emails = db.query(Email).order_by(Email.received_at.desc()).all()
+        format_received_time = lambda received_at: format_received_time(received_at)
+        now = datetime.now()
+        return templates.TemplateResponse(
+            "index.html",
+            {"request": request, "emails": emails, "check_email_status": check_email_status, "format_received_time": format_received_time, "now": now},
+        )
+    elif page == "dashboard":
+        orders = db.query(Order).order_by(Order.id.desc()).all()
+        approvals = db.query(Approval).order_by(Approval.id.desc()).all()
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {"request": request, "orders": orders, "approvals": approvals},
+        )
+    else:
+        return templates.TemplateResponse(
+            "404.html", {"request": request}, status_code=404
+        )
