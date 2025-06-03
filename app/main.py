@@ -159,7 +159,7 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         approvals = db.query(Approval).order_by(Approval.id.desc()).all()
         return templates.TemplateResponse(
             "dashboard.html",
-            {"request": request, "orders": orders, "approvals": approvals},
+            {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date},
         )
     else:
         return templates.TemplateResponse(

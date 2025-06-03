@@ -82,7 +82,7 @@ Inbox - InboxOps
                     </td>
                     <td class="text-muted">
     {% if email.received_at %}
-        {% if email.received_at.date() == now().date() %}
+        {% if email.received_at.date() == now.date() %}
             {{ email.received_at.strftime("%I:%M %p") }} <!-- Show time if today -->
         {% else %}
             {{ email.received_at.strftime("%b %d") }} <!-- Show month and day if older -->

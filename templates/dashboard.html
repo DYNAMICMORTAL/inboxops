@@ -100,16 +100,44 @@ Dashboard - InboxOps
 
 <!-- Approvals Section -->
 <section>
-    <h2 class="text-xl font-semibold mb-3">Approvals</h2>
+    <h2 class="text-xl font-semibold mb-3">HR Workflows</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for approval in approvals %}
         <a href="/approvals/{{ approval.id }}" class="approval-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105">
-            <h3 class="font-semibold text-lg">{{ approval.title }}</h3>
-            <p class="text-sm text-gray-500">From: {{ approval.from_email }}</p>
-            <p class="text-sm mt-2">{{ approval.summary }}</p>
-            <div class="mt-4">
-                {% set status = check_email_status(approval) %}
-                <span class="badge badge-{{ status.lower() }}">{{ status }}</span>
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11M9 21V3m0 0L3 10m6-7l6 7" />
+                    </svg>
+                    <span class="font-black text-gray-700">{{ approval.approval_type }}</span>
+                </div>
+                <span class="badge badge-under-review">Under Review</span>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-500">Employee</p>
+                <p class="font-semibold text-lg text-gray-800">{{ approval.sender }}</p>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-500">Request Type</p>
+                <p class="font-semibold text-lg text-gray-800">{{ approval.approval_type }}</p>
+            </div>
+            <div class="mb-4 p-4 bg-purple-50 rounded-lg shadow-sm">
+                <h3 class="text-sm font-semibold text-purple-600 mb-1">Description</h3>
+                <p class="text-sm text-gray-700">{{ approval.request_text }}</p>
+            </div>
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-black">
+                        SLA: {{ approval.created_at.strftime('%b %d, %I:%M %p') }}
+                    </span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="badge badge-tag">{{ approval.approval_type }}</span>
+                    <span class="badge badge-tag">HR</span>
+                </div>
             </div>
         </a>
         {% endfor %}
