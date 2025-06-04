@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from . import models, schemas
 from .webhook import is_order_email, is_approval_email
+from .utils import extract_order_items, extract_tags, extract_approval_details
 
 def create_email(db: Session, email: schemas.EmailCreate):
     date_num = datetime.now().strftime('%Y%m%d')
@@ -27,6 +28,22 @@ def create_email(db: Session, email: schemas.EmailCreate):
         if not existing_email:
             break
         count += 1  # Increment the counter if the key exists
+    
+    if is_order_email(email.subject, email.text_body):
+        email_type = "ORDER"
+        key = f"ODR-{date_num}{count+1:04d}"
+        order_items = extract_order_items(email.text_body)
+        tags = extract_tags(email.text_body)
+    elif is_approval_email(email.subject, email.text_body):
+        email_type = "APPROVAL"
+        key = f"APL-{date_num}{count+1:04d}"
+        order_items = []
+        tags = []
+    else:
+        email_type = "SPAM"
+        key = "SPAM"
+        order_items = []
+        tags = []
 
     db_email = models.Email(
         from_email=email.from_email,
@@ -34,8 +51,11 @@ def create_email(db: Session, email: schemas.EmailCreate):
         text_body=email.text_body,
         html_body=email.html_body,
         type=email_type,
-        key=key
+        key=key,
+        order_items=order_items,  # Save extracted order items
+        tags=tags, # Save extracted tags
     )
+    
     db.add(db_email)
     db.commit()
     db.refresh(db_email)

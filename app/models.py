@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, JSON
 from sqlalchemy.sql import func
 from .database import Base
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
@@ -29,6 +29,8 @@ class Email(Base):
     type = Column(String, default="UNKNOWN")  # can be ORDER, APPROVAL, SPAM
     key = Column(String, unique=True)
     status = Column(String, default=EmailStatus.NEW)
+    order_items = Column(JSON, nullable=True)  # Store extracted order items
+    tags = Column(JSON, nullable=True)  # Store extracted tags
 
 class Order(Base):
     __tablename__ = "orders"
@@ -40,6 +42,8 @@ class Order(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     key = Column(String, unique=True)
     total_value = Column(Float, nullable=True)
+    order_items = Column(JSON, nullable=True)  # <-- add this line if you want
+    tags = Column(JSON, nullable=True)         # <-- add this line if you want
 
 class Approval(Base):
     __tablename__ = "approvals"
