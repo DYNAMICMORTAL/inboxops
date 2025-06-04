@@ -1,8 +1,31 @@
-<!-- components/header.html -->
+<head>
+  <style>
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .animate-spin {
+      animation: spin 2s linear infinite;
+    }
+    .ai-icon {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #4F46E5; /* Indigo color */
+      border-top: 3px solid #A5B4FC; /* Light Indigo */
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
+</head>
 <header style="margin-bottom: 0.5em;" class="flex justify-between items-center bg-white px-6 py-4 shadow border-b">
   <h1 class="text-xl font-semibold">Inbox Tickets Issues Management Dashboard</h1>
-  <div class="text-sm text-gray-600">
-    <!-- You can add a user dropdown/profile here later -->
-    Logged in as Enterprise
+  <div class="flex items-center text-sm text-gray-600">
+    <!-- Animated AI Icon -->
+    <div class="ai-icon animate-spin mr-3"></div>
+    <span>Logged in as Enterprise</span>
   </div>
 </header>

@@ -5,38 +5,102 @@ Dashboard - InboxOps
 {% endblock %}
 
 {% block content %}
-<!-- <h1 class="text-2xl font-bold mb-4">InboxOps Dashboard</h1> -->
 <link rel="stylesheet" href="../static/styles.css">
-<!-- Search Bar -->
-<div class="relative w-full max-w-md mb-6">
-    <input type="text" placeholder="Search orders..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring"/>
-    <span class="absolute right-3 top-2.5 text-gray-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.386a1 1 0 01-1.414 1.415l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
-        </svg>
-    </span>
-</div>
 
-<section class="mb-8">
+<section style="margin-bottom: 0;" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div class="card bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
+    <h3 class="text-lg font-semibold text-blue-600">Total Processed</h3>
+    <p class="text-3xl font-bold text-blue-800">{{ total_processed }}</p>
+    <p class="text-sm text-blue-500">+{{ processed_today }} today</p>
+    <div class="mt-2">
+        <p class="text-xs text-blue-400">Processed Emails: {{ total_processed }}%</p>
+        <div class="w-full bg-blue-200 rounded-full h-2.5">
+            <div class="bg-blue-600 h-2.5 rounded-full" data-processing-rate="{{ processing_rate|default(0) }}"></div>
+        </div>
+    </div>
+    </div>
+
+    <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-green-600">Success Rate</h3>
+        <p class="text-3xl font-bold text-green-800">{{ success_rate }}%</p>
+        <p class="text-sm text-green-500">↑ {{ success_rate_change }}% from last week</p>
+        <p class="text-xs text-green-400">Avg. Processing Time: {{ avg_processing_time }}s</p>
+    </div>
+
+    <div class="card bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-orange-600">Active Webhooks</h3>
+        <p class="text-3xl font-bold text-orange-800">{{ active_webhooks }}</p>
+        <p class="text-sm text-orange-500">{{ webhook_endpoints }} endpoints configured</p>
+        <p class="text-xs text-orange-400">Avg. Latency: {{ avg_latency }}ms</p>
+    </div>
+
+    <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-purple-600">Pending Approvals</h3>
+        <p class="text-3xl font-bold text-purple-800">{{ approvals|length }}</p>
+        <p class="text-sm text-purple-500">Last Approval: {{ approvals[0].created_at.strftime('%b %d, %I:%M %p') if approvals }}</p>
+    </div>
+
+    <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-green-600">Orders</h3>
+        <p class="text-3xl font-bold text-green-800">{{ orders|length }}</p>
+        <p class="text-sm text-green-500">Last Order: {{ orders[0].created_at.strftime('%b %d, %I:%M %p') if orders }}</p>
+    </div>
+
+    <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-purple-600">Classifications</h3>
+        <p class="text-3xl font-bold text-purple-800">{{ active_models }}</p>
+        <p class="text-sm text-purple-500">Top Type: {{ top_classification_type }} ({{ top_classification_percentage }}%)</p>
+    </div>
+    <div class="card bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-red-600">Error Rate</h3>
+        <p class="text-3xl font-bold text-red-800">{{ error_rate }}%</p>
+        <p class="text-sm text-red-500">↓ {{ error_rate_change }}% from yesterday</p>
+        <p class="text-xs text-red-400">Last Error: {{ last_error_time }}</p>
+    </div>
+</section>
+
+<section class="bg-gray-100 shadow-md rounded-lg p-6 mb-6">
+    <nav class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <a href="#" id="active-workflows-tab" class="nav-card bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-blue-100 active:bg-blue-200">
+            <h3 class="text-lg font-semibold text-blue-600">Active Workflows</h3>
+            <p class="text-sm text-gray-500">View all workflows</p>
+        </a>
+        <a href="#" id="sales-tab" class="nav-card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-green-100 active:bg-green-200">
+            <h3 class="text-lg font-semibold text-green-600">Sales</h3>
+            <p class="text-sm text-gray-500">View orders</p>
+        </a>
+        <a href="#" id="hr-workflows-tab" class="nav-card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-purple-100 active:bg-purple-200">
+            <h3 class="text-lg font-semibold text-purple-600">HR Workflows</h3>
+            <p class="text-sm text-gray-500">View approvals</p>
+        </a>
+        <a href="#" id="approvals-tab" class="nav-card bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-orange-100 active:bg-orange-200">
+            <h3 class="text-lg font-semibold text-orange-600">Pending Approvals</h3>
+            <p class="text-sm text-gray-500">View pending tasks</p>
+        </a>
+        <a href="#" id="customer-enquiries-tab" class="nav-card bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-gray-100 active:bg-gray-200">
+            <h3 class="text-lg font-semibold text-gray-600">Customer Enquiries</h3>
+            <p class="text-sm text-gray-500">Coming soon</p>
+        </a>
+    </nav>
+</section>
+
+<section class="mb-8 orderCard">
     <h2 class="text-xl font-semibold mb-3">Orders</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for order in orders %}
-        <a href="/orders/{{ order.id }}" class="order-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105">
-            <!-- Order Header -->
+        <a href="#" class="order-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105" data-order-id="{{ order.id }}">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11M9 21V3m0 0L3 10m6-7l6 7" />
                     </svg>
                     <span class="font-black text-gray-700">#{{ order.id }}</span>
-                    <div class="orderKey font-black">
-                        {{ order.key }}
+                    <div class="orderKey font-black" style="display: none;"> {{ order.key }}
                     </div>
                 </div>
                 <span class="badge badge-confirmed">Confirmed</span>
             </div>
 
-            <!-- Customer Information -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Customer</p>
                 <p class="font-semibold text-lg text-gray-800">
@@ -49,40 +113,34 @@ Dashboard - InboxOps
             </div>
 
             <div class="mb-4 flex justify-between items-center">
-                <!-- Quantity -->
-                <div class="-m-200px">
+                <div>
                     <p class="text-sm text-gray-500">Quantity</p>
                     <p class="font-semibold text-xl text-gray-800">{{ order.quantity }}</p>
                 </div>
 
-                <!-- Total Value -->
-                <div style="margin-right: 5vw;">
+                <div>
                     <p class="text-sm text-gray-500">Total Value</p>
                     <p class="font-semibold text-green-600">USD {{ order.total_value }}</p>
                 </div>
             </div>
 
-            <!-- AI Summary -->
             <div class="mb-4 p-4 bg-blue-50 rounded-lg shadow-sm">
                 <h3 class="text-sm font-semibold text-blue-600 mb-1">AI Summary</h3>
                 <p class="text-sm text-gray-700">{{ order.summary }}</p>
             </div>
 
-            <!-- Automation Progress -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Automation Progress</p>
                 <div class="w-full bg-gray-200 rounded-full h-2.5">
                     <div class="bg-black h-2.5 rounded-full" style="width: 50%;"></div>
                 </div>
-                <!-- <p class="text-sm text-gray-500 mt-1">{{ order.progress }}/5</p> -->
-            </div>
+                </div>
 
-            <!-- Footer -->
             <div class="flex items-center justify-between text-sm text-gray-500">
                 <div class="flex items-center gap-2">
                     <svg width="5%" height="5%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
- <path d="M21 10H3M16 2V6M8 2V6M7.8 22H16.2C17.8802 22 18.7202 22 19.362 21.673C19.9265 21.3854 20.3854 20.9265 20.673 20.362C21 19.7202 21 18.8802 21 17.2V8.8C21 7.11984 21 6.27976 20.673 5.63803C20.3854 5.07354 19.9265 4.6146 19.362 4.32698C18.7202 4 17.8802 4 16.2 4H7.8C6.11984 4 5.27976 4 4.63803 4.32698C4.07354 4.6146 3.6146 5.07354 3.32698 5.63803C3 6.27976 3 7.11984 3 8.8V17.2C3 18.8802 3 19.7202 3.32698 20.362C3.6146 20.9265 4.07354 21.3854 4.63803 21.673C5.27976 22 6.11984 22 7.8 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
- </svg>
+                        <path d="M21 10H3M16 2V6M8 2V6M7.8 22H16.2C17.8802 22 18.7202 22 19.362 21.673C19.9265 21.3854 20.3854 20.9265 20.673 20.362C21 19.7202 21 18.8802 21 17.2V8.8C21 7.11984 21 6.27976 20.673 5.63803C20.3854 5.07354 19.9265 4.6146 19.362 4.32698C18.7202 4 17.8802 4 16.2 4H7.8C6.11984 4 5.27976 4 4.63803 4.32698C4.07354 4.6146 3.6146 5.07354 3.32698 5.63803C3 6.27976 3 7.11984 3 8.8V17.2C3 18.8802 3 19.7202 3.32698 20.362C3.6146 20.9265 4.07354 21.3854 4.63803 21.673C5.27976 22 6.11984 22 7.8 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     <span class="font-black">
                         {{ order.created_at.strftime('%b %d, %I:%M %p') if order.created_at }}
                     </span>
@@ -98,13 +156,25 @@ Dashboard - InboxOps
     </div>
 </section>
 
-<!-- Approvals Section -->
-<section>
-    <h2 class="text-xl font-semibold mb-3">HR Workflows</h2>
+<div id="order-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="order-title" class="text-2xl font-bold text-gray-800">Order Details</h2>
+            <button id="close-modal" class="text-gray-500 hover:text-gray-800 transition duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div id="order-content" class="space-y-6">
+            </div>
+    </div>
+</div>
+<section class="approvalCard">
+    <h2 class="font-semibold mb-3">HR Workflows</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for approval in approvals %}
         <a href="/approvals/{{ approval.id }}" class="approval-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105">
-            <!-- Approval Header -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,26 +185,22 @@ Dashboard - InboxOps
                 <span class="badge badge-under-review">Under Review</span>
             </div>
 
-            <!-- Employee Information -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Employee</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.sender }}</p>
             </div>
 
-            <!-- Request Type -->
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Request Type</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.approval_type }}</p>
             </div>
 
-            <!-- Description -->
             <div class="mb-4 p-4 bg-purple-50 rounded-lg shadow-sm">
                 <h3 class="text-sm font-semibold text-purple-600 mb-1">Description</h3>
                 <p class="text-sm text-gray-700">{{ approval.request_text }}</p>
             </div>
 
-                        <!-- Start and End Dates -->
-            <div class="mb-4 flex justify-between items-center">
+                        <div class="mb-4 flex justify-between items-center">
                 <div>
                     <p class="text-sm text-gray-500">Start</p>
                     <p class="font-semibold text-lg text-gray-800">
@@ -149,7 +215,6 @@ Dashboard - InboxOps
                 </div>
             </div>
 
-            <!-- SLA and Tags -->
             <div class="flex items-center justify-between text-sm text-gray-500">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -168,4 +233,148 @@ Dashboard - InboxOps
         {% endfor %}
     </div>
 </section>
+    <script>
+        // JavaScript for Navigation Bar Filtering
+        const tabs = document.querySelectorAll('.nav-card'); // Navigation tabs
+        const allCards = document.querySelectorAll('.orderCard, .approvalCard'); // Select all cards
+    
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+    
+                // Remove active class from all tabs and add it to the clicked tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+    
+                const tabId = tab.id.replace('-tab', ''); // Extract tab identifier
+    
+                // Filter cards based on the selected tab
+                if (tabId === 'active-workflows') {
+                    allCards.forEach(card => card.style.display = 'block'); // Show all cards
+                } else if (tabId === 'sales') {
+                    allCards.forEach(card => {
+                        if (card.classList.contains('orderCard')) {
+                            card.style.display = 'block'; // Show order cards
+                        } else {
+                            card.style.display = 'none'; // Hide other cards
+                        }
+                    });
+                } else if (tabId === 'hr-workflows') {
+                    allCards.forEach(card => {
+                        if (card.classList.contains('approvalCard')) {
+                            card.style.display = 'block'; // Show approval cards
+                        } else {
+                            card.style.display = 'none'; // Hide other cards
+                        }
+                    });
+                } else if (tabId === 'approvals') {
+                    allCards.forEach(card => {
+                        if (card.classList.contains('approvalCard')) {
+                            card.style.display = 'block'; // Show approval cards
+                        } else {
+                            card.style.display = 'none'; // Hide other cards
+                        }
+                    });
+                } else if (tabId === 'customer-enquiries') {
+                    allCards.forEach(card => card.style.display = 'none'); // Hide all cards
+                }
+            });
+        });
+    </script>
+<script>
+    // Script for Order Card Modal Popup
+    const orderCards = document.querySelectorAll('.order-card');
+    const modal = document.getElementById('order-modal');
+    const modalTitle = document.getElementById('order-title');
+    const modalContent = document.getElementById('order-content');
+    const closeModalButton = document.getElementById('close-modal');
+
+    const openModal = (order) => {
+        modalTitle.textContent = `Order #${order.id}`;
+        modalContent.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Customer Information</h3>
+                    <p class="text-sm text-gray-600"><strong>Name:</strong> ${order.customerName}</p>
+                    <p class="text-sm text-gray-600"><strong>Email:</strong> ${order.customerEmail}</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Order Summary</h3>
+                    <p class="text-sm text-gray-600"><strong>Total Value:</strong> USD ${order.totalValue}</p>
+                    <p class="text-sm text-gray-600"><strong>Quantity:</strong> ${order.quantity}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">AI Summary</h3>
+                <p class="text-sm text-gray-600">${order.summary}</p>
+            </div>
+        `;
+        modal.classList.remove('hidden');
+    };
+
+    const closeModalHandler = () => {
+        modal.classList.add('hidden');
+    };
+
+    orderCards.forEach((card) => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const orderId = card.dataset.orderId;
+
+            // Customer Information: The element with class 'text-lg' inside the 'Customer' block
+            const customerInfoElement = card.querySelector('div.mb-4 > p.font-semibold.text-lg.text-gray-800');
+            
+            let quantityValue = null;
+            const quantityLabel = Array.from(card.querySelectorAll('p.text-sm.text-gray-500')).find(el => el.textContent.trim() === 'Quantity');
+            if (quantityLabel && quantityLabel.nextElementSibling && quantityLabel.nextElementSibling.classList.contains('text-xl')) {
+                quantityValue = quantityLabel.nextElementSibling.textContent.trim();
+            }
+            
+            let totalValueAmount = null;
+            const totalValueLabel = Array.from(card.querySelectorAll('p.text-sm.text-gray-500')).find(el => el.textContent.trim() === 'Total Value');
+            if (totalValueLabel && totalValueLabel.nextElementSibling && totalValueLabel.nextElementSibling.classList.contains('text-green-600')) {
+                totalValueAmount = totalValueLabel.nextElementSibling.textContent.trim().replace('USD ', '');
+            }
+
+            const summaryContainer = card.querySelector('div.mb-4.p-4.bg-blue-50');
+            const summaryText = summaryContainer ? summaryContainer.querySelector('p.text-sm.text-gray-700')?.textContent.trim() : null;
+
+            if (!orderId || !customerInfoElement || quantityValue === null || totalValueAmount === null || summaryText === null) {
+                console.error('Missing data for modal on card:', card);
+                if(!orderId) console.error("Order ID (data-order-id) missing or undefined.");
+                if(!customerInfoElement) console.error("Customer info element (p.font-semibold.text-lg.text-gray-800) not found.");
+                if(quantityValue === null) console.error("Quantity element or value not found.");
+                if(totalValueAmount === null) console.error("Total value element or value not found.");
+                if(summaryText === null) console.error("AI summary text not found.");
+                return;
+            }
+
+            const customerNameFromCard = customerInfoElement.textContent.trim(); // This is likely the email
+
+            const order = {
+                id: orderId,
+                customerName: customerNameFromCard, // Using the extracted email as name
+                customerEmail: customerNameFromCard, // Using the extracted email for email
+                totalValue: totalValueAmount,
+                quantity: quantityValue,
+                summary: summaryText,
+            };
+
+            openModal(order);
+        });
+    });
+
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', closeModalHandler);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) { // If the click is on the modal background itself
+                closeModalHandler();
+            }
+        });
+    }
+</script>
 {% endblock %}

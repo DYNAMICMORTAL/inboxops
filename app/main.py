@@ -53,6 +53,11 @@ templates = Jinja2Templates(directory="templates")
 templates.env.filters["date"] = format_date
 templates.env.globals["now"] = datetime.now  # Add `now` to Jinja2 globals
 
+from .webhook import router as webhook_router
+
+app.include_router(webhook_router)
+
+
 from datetime import datetime
 
 def format_received_time(received_at):
@@ -83,12 +88,37 @@ def home(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
+    print("Fetching dashboard data...")
     orders = db.query(Order).order_by(Order.id.desc()).limit(10).all()
     emails = crud.get_emails(db, limit=20)
     approvals = db.query(Approval).order_by(Approval.id.desc()).limit(10).all()
+    total_processed = db.query(Email).count()
+    processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
+    success_rate = 96.8
+    success_rate_change = 2.3
+    avg_processing_time = 1.4  
+    # active_webhooks = 12  # Example static value; replace with dynamic calculation
+    webhook_endpoints = 4
+    avg_latency = 198
+    active_models = 15
+    top_classification_type = "Invoices"
+    top_classification_percentage = 26.6
+    # error_rate = 3.2  # Example static value; replace with dynamic calculation
+    error_rate_change = -0.8
+    last_error_time = "2 hours ago"
+    active_webhooks = db.query(Approval).count()
+    processed_emails = db.query(Email).filter(Email.status == "Processed").count()
+    processing_rate = (processed_emails / total_processed) * 100 if total_processed else 0
+    processing_message = "All mails processed" if processing_rate == 100 else f"{processing_rate:.2f}%"
+    error_rate = db.query(Email).filter(Email.status == "Error").count() / total_processed * 100 if total_processed else 0
     orders_dict = [order.__dict__ for order in orders]
     emails_dict = [email.__dict__ for email in emails]
 
+    # Debugging
+    print("Total Processed:", total_processed)
+    print("Processed Today:", processed_today)
+    print("Success Rate:", success_rate)
+    print("Error Rate:", error_rate)
     # print("Orders:", orders_dict)
     # print("Emails:", emails_dict)
     return templates.TemplateResponse(
@@ -100,6 +130,21 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "emails": emails,
             "format_date": format_date,
             "check_email_status": check_email_status,  # Pass the function to the template
+            "total_processed": total_processed,
+            "processed_today": processed_today,
+            "processing_rate": processing_rate,
+            "success_rate": success_rate,
+            "success_rate_change": success_rate_change,
+            "avg_processing_time": avg_processing_time,
+            "active_webhooks": active_webhooks,
+            "webhook_endpoints": webhook_endpoints,
+            "avg_latency": avg_latency,
+            "active_models": active_models,
+            "top_classification_type": top_classification_type,
+            "top_classification_percentage": top_classification_percentage,
+            "error_rate": error_rate,
+            "error_rate_change": error_rate_change,
+            "last_error_time": last_error_time,
         },
     )
 
@@ -158,9 +203,37 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         orders = db.query(Order).order_by(Order.id.desc()).all()
         approvals = db.query(Approval).order_by(Approval.id.desc()).all()
         emails = db.query(Email).order_by(Email.received_at.desc()).all()
+        total_processed = db.query(Email).count()
+        processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
+        success_rate = 96.8  # Example static value; replace with dynamic calculation
+        success_rate_change = 2.3  # Example static value; replace with dynamic calculation
+        avg_processing_time = 1.4  # Example static value; replace with dynamic calculation
+        active_webhooks = 12  # Example static value; replace with dynamic calculation
+        webhook_endpoints = 4  # Example static value; replace with dynamic calculation
+        avg_latency = 198  # Example static value; replace with dynamic calculation
+        active_models = 15  # Example static value; replace with dynamic calculation
+        top_classification_type = "Invoices"  # Example static value; replace with dynamic calculation
+        top_classification_percentage = 26.6  # Example static value; replace with dynamic calculation
+        error_rate = 3.2  # Example static value; replace with dynamic calculation
+        error_rate_change = -0.8  # Example static value; replace with dynamic calculation
+        last_error_time = "2 hours ago"  # Example static value; replace with dynamic calculation
         return templates.TemplateResponse(
             "dashboard.html",
-            {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date},
+            {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date, "total_processed": total_processed,
+            "processed_today": processed_today,
+            "processing_rate": (processed_today / total_processed) * 100 if total_processed else 0,
+            "success_rate": success_rate,
+            "success_rate_change": success_rate_change,
+            "avg_processing_time": avg_processing_time,
+            "active_webhooks": active_webhooks,
+            "webhook_endpoints": webhook_endpoints,
+            "avg_latency": avg_latency,
+            "active_models": active_models,
+            "top_classification_type": top_classification_type,
+            "top_classification_percentage": top_classification_percentage,
+            "error_rate": error_rate,
+            "error_rate_change": error_rate_change,
+            "last_error_time": last_error_time,},
         )
     else:
         return templates.TemplateResponse(
