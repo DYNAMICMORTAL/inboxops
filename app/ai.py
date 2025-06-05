@@ -35,3 +35,13 @@ async def generate_summary(text: str) -> str:
     except Exception as e:
         print(f"An error occurred during summary generation: {e}")
         return f"Error generating summary: {e}"
+    
+async def gemini_chat(messages: list[dict]) -> str:
+    """
+    messages: List of dicts like [{"role": "user", "parts": ["Hi"]}, ...]
+    """
+    genai.configure(api_key=os.getenv("GOOGLE_API_KEY", "AIzaSyDPZJiV_pxYQxH_bzCAIcjbgfo2GdM3GSg"))
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    chat = model.start_chat(history=messages[:-1])  # all but last as history
+    response = chat.send_message(messages[-1]["parts"][0])
+    return response.text

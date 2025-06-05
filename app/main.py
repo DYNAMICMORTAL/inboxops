@@ -10,6 +10,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils import check_email_status
+from .webhook import ai_chat
 # ...existing code...
 
 from . import models, schemas, crud

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from .main import get_db
+from .webhook import get_db
 from .models import Order, Approval
 from datetime import datetime
 

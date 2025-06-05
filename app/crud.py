@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from . import models, schemas
-from .webhook import is_order_email, is_approval_email
+# from .webhook import is_order_email, is_approval_email
+from .utils import is_order_email, is_approval_email
 from .utils import extract_order_items, extract_tags, extract_approval_details
 
 def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):

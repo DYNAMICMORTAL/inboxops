@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request, Depends, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from . import crud, schemas, ai
+from .ai import generate_summary  # Import the missing function
 from .database import SessionLocal
-from .models import Order, Approval
+from .models import Order, Approval, SupportTicket, HRRequest
 from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details, extract_order_items, extract_tags
 import json
 from postmarker.core import PostmarkClient
@@ -133,3 +134,117 @@ async def inbound_email(
         crud.update_email_summary(db, db_email.id, summary)
 
     return {"message": "📩 Email received and processed"}
+
+
+# # In your FastAPI app
+# from fastapi import APIRouter, Request, Depends
+# from .ai import generate_summary  # or your chat function
+# from .models import Order, Approval, SupportTicket, HRRequest
+# from sqlalchemy.orm import Session
+
+# router = APIRouter()
+
+# @router.post("/ai-chat")
+# async def ai_chat(request: Request, db: Session = Depends(get_db)):
+#     data = await request.json()
+#     user_input = data.get("message", "")
+
+#     # Fetch relevant data (simplified)
+#     orders = db.query(Order).order_by(Order.created_at.desc()).limit(3).all()
+#     approvals = db.query(Approval).order_by(Approval.created_at.desc()).limit(2).all()
+#     tickets = db.query(SupportTicket).order_by(SupportTicket.created_at.desc()).limit(2).all()
+#     hr_requests = db.query(HRRequest).order_by(HRRequest.created_at.desc()).limit(2).all()
+
+#     # Build context
+#     context = f"""
+#     Recent Orders: {[o.summary for o in orders]}
+#     Recent Approvals: {[a.summary for a in approvals]}
+#     Recent Support Tickets: {[t.summary for t in tickets]}
+#     Recent HR Requests: {[h.summary for h in hr_requests]}
+#     """
+
+#     prompt = f"""
+#     You are an enterprise assistant. Here is some context:
+#     {context}
+#     User question: {user_input}
+#     Answer as helpfully as possible.
+#     """
+
+#     # Call Gemini or your LLM
+#     answer = await generate_summary(prompt)
+#     return {"answer": answer}
+from .ai import gemini_chat
+@router.post("/ai-chat")
+async def ai_chat(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    user_input = data.get("message", "")
+
+    # Fetch more context-rich data
+    orders = db.query(Order).order_by(Order.created_at.desc()).limit(5).all()
+    approvals = db.query(Approval).order_by(Approval.created_at.desc()).limit(5).all()
+    tickets = db.query(SupportTicket).order_by(SupportTicket.created_at.desc()).limit(5).all()
+    hr_requests = db.query(HRRequest).order_by(HRRequest.created_at.desc()).limit(5).all()
+
+    # Build detailed context for each type
+    order_context = "\n".join([
+        f"Order ID: {o.id}, Key: {o.key}, Customer: {o.customer}, Value: {o.total_value}, Items: {o.order_items}, Tags: {o.tags}, Summary: {o.summary}"
+        for o in orders
+    ])
+    approval_context = "\n".join([
+        f"Approval ID: {a.id}, Type: {a.approval_type}, Sender: {a.sender}, Status: {a.status}, Dates: {a.start_date} to {a.end_date}, Summary: {a.summary}"
+        for a in approvals
+    ])
+    ticket_context = "\n".join([
+        f"Ticket ID: {t.id}, Issue: {t.issue_type}, Status: {t.status}, Sender: {t.sender}, Summary: {t.summary}"
+        for t in tickets
+    ])
+    hr_context = "\n".join([
+        f"HR ID: {h.id}, Type: {h.request_type}, Sender: {h.sender}, Status: {h.status}, Summary: {h.summary}"
+        for h in hr_requests
+    ])
+
+    # Optionally, include recent tags and order items
+    recent_tags = []
+    recent_items = []
+    for o in orders:
+        if o.tags:
+            recent_tags.extend(o.tags)
+        if o.order_items:
+            recent_items.extend(o.order_items)
+    tag_context = ", ".join(set(recent_tags))
+    item_context = "\n".join([str(item) for item in recent_items])
+
+    # Compose the full prompt
+    context = f"""
+You are an enterprise assistant for InboxOps. Here is the latest context from the system:
+
+Recent Orders:
+{order_context}
+
+Recent Approvals:
+{approval_context}
+
+Recent Support Tickets:
+{ticket_context}
+
+Recent HR Requests:
+{hr_context}
+
+Recent Tags: {tag_context}
+Recent Order Items:
+{item_context}
+
+User question: {user_input}
+
+Answer as helpfully and accurately as possible in verbose, using the above data. Do not say you cannot access emails; you have the above data.
+"""
+
+    # Call Gemini or your LLM
+    # answer = await generate_summary(context)
+    # Build chat history for Gemini
+    messages = [
+        {"role": "user", "parts": [f"{context}\n\nUser question: {user_input}"]}
+    ]
+
+    answer = await gemini_chat(messages)
+    return {"answer": answer}
