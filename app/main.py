@@ -84,8 +84,12 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
-    return templates.TemplateResponse("index.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
+    return templates.TemplateResponse("home.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
+@app.get("/a", response_class=HTMLResponse)
+def home_another(request: Request, db: Session = Depends(get_db)):
+    emails = crud.get_emails(db, limit=20)
+    return templates.TemplateResponse("homeAnother.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):

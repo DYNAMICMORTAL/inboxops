@@ -24,55 +24,80 @@
         </main>
       </div>
     </div>
-    <!-- ...existing code... -->
-      <!-- AI Chat Circle Button -->
-      <div id="ai-chat-btn" class="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg cursor-pointer z-50">
-        <span class="text-white text-2xl">🤖</span>
-      </div>
-
-      <!-- AI Chat Modal -->
-      <div id="ai-chat-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg w-full max-w-md p-4 flex flex-col">
-          <div class="flex justify-between items-center mb-2">
-            <span class="font-bold text-lg">Enterprise AI Chat</span>
-            <button onclick="closeAIChat()" class="text-gray-400 hover:text-gray-700">&times;</button>
-          </div>
-          <div id="ai-chat-history" class="flex-1 overflow-y-auto mb-2" style="max-height:300px;"></div>
-          <div class="flex">
-            <input id="ai-chat-input" type="text" class="flex-1 border rounded px-2 py-1" placeholder="Ask anything..." />
-            <button onclick="sendAIChat()" class="ml-2 bg-blue-600 text-white px-4 py-1 rounded">Send</button>
-          </div>
+    
+    <!-- AI Chat Modal -->
+    <div id="ai-chat-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+      <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-xl flex flex-col" style="height: 420px; background-image: linear-gradient(90deg,rgba(0,0,0,0.03) 1px,transparent 1px),linear-gradient(rgba(0,0,0,0.03) 1px,transparent 1px); background-size: 32px 32px;">
+        <!-- Close Button -->
+        <button onclick="closeAIChat()" class="absolute top-4 right-4 text-3xl text-black hover:text-blue-600 focus:outline-none z-20">&times;</button>
+        <!-- Header -->
+        <div class="px-6 pt-6 pb-2">
+          <span class="font-semibold text-xl text-gray-900">Enterprise AI Chat</span>
         </div>
+        <!-- Chat History (scrollable) -->
+        <div class="flex-1 overflow-y-auto px-6 py-4 relative" id="ai-chat-history-container">
+          <span id="ai-chat-placeholder"
+                class="absolute inset-0 flex items-center justify-center text-xl text-gray-700 pointer-events-none select-none z-10"
+                style="top:0; left:0; right:0; bottom:0;">
+            What's on your mind today?
+          </span>
+          <div id="ai-chat-history" class="relative flex flex-col space-y-3 z-20"></div>
+        </div>
+        <!-- Input Area (always visible at bottom) -->
+        <form onsubmit="sendAIChat(); return false;" class="px-6 py-4 border-t bg-white">
+          <div class="flex items-center border-2 border-gray-400 rounded-xl px-3 py-2 bg-white">
+            <input id="ai-chat-input" type="text" autocomplete="off" class="flex-1 outline-none border-none bg-transparent text-lg placeholder-gray-500" placeholder="Ask ..." />
+            <button type="submit" class="ml-3 px-6 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg font-semibold text-lg transition">Send</button>
+          </div>
+        </form>
       </div>
-      <script>
-document.getElementById('ai-chat-btn').onclick = function() {
-    document.getElementById('ai-chat-modal').classList.remove('hidden');
-};
-function closeAIChat() {
-    document.getElementById('ai-chat-modal').classList.add('hidden');
-}
-async function sendAIChat() {
-    const input = document.getElementById('ai-chat-input');
-    const message = input.value.trim();
-    if (!message) return;
-    appendAIChat('You', message);
-    input.value = '';
-    const res = await fetch('/ai-chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message})
-    });
-    const data = await res.json();
-    appendAIChat('AI', data.answer);
-}
-function appendAIChat(sender, text) {
-    const history = document.getElementById('ai-chat-history');
-    const div = document.createElement('div');
-    div.className = 'mb-2';
-    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    history.appendChild(div);
-    history.scrollTop = history.scrollHeight;
-}
-</script>
+    </div>
+    
+    <script>
+    document.getElementById('ai-chat-btn').onclick = function() {
+        document.getElementById('ai-chat-modal').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('ai-chat-input').focus();
+        }, 100);
+    };
+    function closeAIChat() {
+        document.getElementById('ai-chat-modal').classList.add('hidden');
+    }
+    async function sendAIChat() {
+        const input = document.getElementById('ai-chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+        appendAIChat('You', message, 'right');
+        input.value = '';
+        input.disabled = true;
+        const res = await fetch('/ai-chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message})
+        });
+        const data = await res.json();
+        appendAIChat('AI', data.answer, 'left');
+        input.disabled = false;
+        input.focus();
+    }
+    function appendAIChat(sender, text, align='left') {
+        const history = document.getElementById('ai-chat-history');
+        const placeholder = document.getElementById('ai-chat-placeholder');
+        // Hide placeholder if there are messages
+        if (history.children.length === 0 && placeholder) {
+            placeholder.style.display = 'none';
+        }
+        const div = document.createElement('div');
+        div.className = `w-full flex ${align === 'right' ? 'justify-end' : 'justify-start'} mb-2`;
+        div.innerHTML = `
+          <div class="max-w-[80%] px-4 py-2 rounded-xl border ${align === 'right' ? 'bg-blue-100 border-blue-300 text-blue-900 ml-auto' : 'bg-gray-100 border-gray-300 text-gray-800 mr-auto'}">
+            <span class="block text-xs font-semibold mb-1">${sender}</span>
+            <span class="block whitespace-pre-line">${text}</span>
+          </div>
+        `;
+        history.appendChild(div);
+        history.scrollTop = history.scrollHeight;
+    }
+    </script>
   </body>
 </html>
