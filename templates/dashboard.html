@@ -296,10 +296,74 @@ Dashboard - InboxOps
         {% endfor %}
     </div>
 </section>
+<section class="mb-8 customerEnquiryCard">
+    <h2 class="text-xl font-semibold mb-3">Customer Enquiries</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for ticket in support_tickets %}
+                <a href="#" class="customer-enquiry-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105"
+           data-subject="{{ ticket.subject }}"
+           data-sender="{{ ticket.sender }}"
+           data-category="{{ ticket.category }}"
+           data-status="{{ ticket.status }}"
+           data-summary="{{ ticket.summary }}"
+           data-created="{{ ticket.created_at.strftime('%b %d, %I:%M %p') }}"
+           data-tags="{{ ticket.tags or '' }}">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <div class="font-bold text-lg text-gray-900">{{ ticket.subject }}</div>
+                    <div class="text-gray-500 text-sm">{{ ticket.sender }}</div>
+                </div>
+                <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">
+                    {{ ticket.status|capitalize }}
+                </span>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{{ ticket.category }}</span>
+                {% if ticket.criticality %}
+                <span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full">{{ ticket.criticality }}</span>
+                {% endif %}
+            </div>
+            <div class="bg-green-50 text-green-800 font-bold text-xl rounded px-4 py-2 mb-2">
+                {{ ticket.estimated_value or '' }}
+            </div>
+            <div class="mb-2">
+                <div class="text-xs text-gray-500 mb-1">Description:</div>
+                <div class="text-gray-800 text-sm">{{ ticket.summary }}</div>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+                <div class="flex items-center gap-1 text-xs text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Response: 2 hours</span>
+                </div>
+                <div class="flex gap-2">
+                    {% for tag in (ticket.tags.split(',') if ticket.tags else []) %}
+                    <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+<!-- Customer Enquiry Modal -->
+<div id="customerEnquiryModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative">
+    <button id="closeCustomerEnquiryModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+    <h2 class="text-xl font-bold mb-2" id="modalEnquirySubject"></h2>
+    <div class="mb-2 text-gray-600" id="modalEnquirySender"></div>
+    <div class="mb-2 text-gray-600" id="modalEnquiryCategory"></div>
+    <div class="mb-2 text-gray-600" id="modalEnquiryStatus"></div>
+    <div class="mb-4 bg-cyan-50 rounded p-3" id="modalEnquirySummary"></div>
+    <div class="text-xs text-gray-400" id="modalEnquiryCreated"></div>
+    <div class="flex gap-2 mt-2" id="modalEnquiryTags"></div>
+  </div>
+</div>
     <script>
         // JavaScript for Navigation Bar Filtering
         const tabs = document.querySelectorAll('.nav-card'); // Navigation tabs
-        const allCards = document.querySelectorAll('.orderCard, .approvalCard'); // Select all cards
+        const allCards = document.querySelectorAll('.orderCard, .approvalCard, .customerEnquiryCard'); // Select all cards
     
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -339,7 +403,9 @@ Dashboard - InboxOps
                         }
                     });
                 } else if (tabId === 'customer-enquiries') {
-                    allCards.forEach(card => card.style.display = 'none'); // Hide all cards
+                    allCards.forEach(card => {
+                card.style.display = card.classList.contains('customerEnquiryCard') ? 'block' : 'none';
+            }); // Hide all cards
                 }
             });
         });

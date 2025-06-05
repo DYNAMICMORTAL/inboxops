@@ -4,7 +4,8 @@ from . import crud, schemas, ai
 from .ai import generate_summary  # Import the missing function
 from .database import SessionLocal
 from .models import Order, Approval, SupportTicket, HRRequest
-from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details, extract_order_items, extract_tags
+from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details, extract_order_items, extract_tags, is_support_ticket
+from .support_ticket import SupportTicketCreate
 import json
 from postmarker.core import PostmarkClient
 
@@ -109,6 +110,17 @@ async def inbound_email(
             )
 
             return {"status": "✅ Order saved", "summary": summary}
+        
+        if is_support_ticket(email_data.subject, email_data.text_body):
+            ticket_data = SupportTicketCreate(
+                sender=payload.get("From"),
+                subject=email_data.subject,
+                message=email_data.text_body,
+                key=payload.get("MessageID")
+            )
+        await create_ticket(db, ticket_data)
+
+
 
         # If no items found, mark as error
         crud.update_email_summary(db, db_email.id, "No order items found.", status="Error")
@@ -248,3 +260,27 @@ Answer as helpfully and accurately as possible in verbose, using the above data.
 
     answer = await gemini_chat(messages)
     return {"answer": answer}
+
+from sqlalchemy.orm import Session
+from .models import SupportTicket
+from .support_ticket import SupportTicketCreate
+from .utils import classify_criticality, extract_customerMail_tags, generate_summary
+
+async def create_ticket(db: Session, ticket_data: SupportTicketCreate):
+    summary = await generate_summary(ticket_data.message)
+    criticality = await classify_criticality(ticket_data.message)
+    tags = extract_customerMail_tags(ticket_data.message)
+
+    db_ticket = SupportTicket(
+        **ticket_data.dict(),
+        summary=summary,
+        criticality=criticality,
+        tags=",".join(tags)
+    )
+    db.add(db_ticket)
+    db.commit()
+    db.refresh(db_ticket)
+    return db_ticket
+
+def get_all_tickets(db: Session):
+    return db.query(SupportTicket).order_by(SupportTicket.created_at.desc()).all()

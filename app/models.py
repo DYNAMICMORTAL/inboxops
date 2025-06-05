@@ -61,18 +61,6 @@ class Approval(Base):
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
 from datetime import datetime
 
-class SupportTicket(Base):
-    __tablename__ = "support_tickets"
-
-    id = Column(Integer, primary_key=True, index=True)
-    sender = Column(String, index=True)
-    issue_type = Column(String)  # e.g., Technical, Login, Outage
-    status = Column(String, default="Open")  # Open / In Progress / Resolved / Closed
-    request_text = Column(Text)  # raw extracted message
-    summary = Column(Text, nullable=True)  # generated from LLM
-    key = Column(String, unique=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
 class HRRequest(Base):
     __tablename__ = "hr_requests"
 
@@ -83,4 +71,20 @@ class HRRequest(Base):
     status = Column(String, default="Pending")  # Pending / Approved / Rejected
     summary = Column(Text, nullable=True)  # generated from LLM
     key = Column(String, unique=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class SupportTicket(Base):
+    __tablename__ = "support_tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender = Column(String, index=True)
+    subject = Column(String)
+    message = Column(Text)
+    category = Column(String, default="General")  # General, Billing, Login, Feedback, Complaint
+    criticality = Column(String, default="Medium")  # Low, Medium, High, Urgent
+    status = Column(String, default="open")  # open, in_progress, resolved, closed
+    summary = Column(Text, nullable=True)
+    tags = Column(String, nullable=True)  # Comma-separated tags like "password, refund"
+    key = Column(String, unique=True)
+    assigned_to = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

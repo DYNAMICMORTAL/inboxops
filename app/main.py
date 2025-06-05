@@ -16,6 +16,7 @@ from .webhook import ai_chat
 from . import models, schemas, crud
 from .database import engine, SessionLocal
 from .webhook import router as webhook_router
+from .webhook import get_all_tickets
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -99,6 +100,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     approvals = db.query(Approval).order_by(Approval.id.desc()).limit(10).all()
     total_processed = db.query(Email).count()
     processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
+    support_tickets = get_all_tickets(db)
     success_rate = 96.8
     success_rate_change = 2.3
     avg_processing_time = 1.4  
@@ -168,6 +170,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "error_rate": error_rate,
             "error_rate_change": error_rate_change,
             "last_error_time": last_error_time,
+            "support_tickets": support_tickets,
         },
     )
 
@@ -228,6 +231,7 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         emails = db.query(Email).order_by(Email.received_at.desc()).all()
         total_processed = db.query(Email).count()
         processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
+        support_tickets = get_all_tickets(db)
         success_rate = 96.8  # Example static value; replace with dynamic calculation
         success_rate_change = 2.3  # Example static value; replace with dynamic calculation
         avg_processing_time = 1.4  # Example static value; replace with dynamic calculation
@@ -265,7 +269,8 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
             "top_classification_percentage": top_classification_percentage,
             "error_rate": error_rate,
             "error_rate_change": error_rate_change,
-            "last_error_time": last_error_time,},
+            "last_error_time": last_error_time,
+            "support_tickets": support_tickets,},
         )
     else:
         return templates.TemplateResponse(

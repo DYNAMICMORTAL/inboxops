@@ -3,7 +3,7 @@ from datetime import datetime
 from . import models, schemas
 # from .webhook import is_order_email, is_approval_email
 from .utils import is_order_email, is_approval_email
-from .utils import extract_order_items, extract_tags, extract_approval_details
+from .utils import extract_order_items, extract_tags, extract_approval_details, is_support_ticket
 
 def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
     date_num = datetime.now().strftime('%Y%m%d')
@@ -20,6 +20,9 @@ def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
         elif is_approval_email(email.subject, email.text_body):
             email_type = "APPROVAL"
             key = f"APL-{date_num}{count+1:04d}"
+        elif is_support_ticket(email.subject, email.text_body):
+            email_type = "SUPPORT_REQUEST"
+            key = f"SUP-{date_num}{count+1:04d}"
         else:
             email_type = "SPAM"
             key = "SPAM"
@@ -38,6 +41,11 @@ def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
     elif is_approval_email(email.subject, email.text_body):
         email_type = "APPROVAL"
         key = f"APL-{date_num}{count+1:04d}"
+        order_items = []
+        tags = []
+    elif is_support_ticket(email.subject, email.text_body):
+        email_type = "SUPPORT_REQUEST"
+        key = f"SUP-{date_num}{count+1:04d}"
         order_items = []
         tags = []
     else:

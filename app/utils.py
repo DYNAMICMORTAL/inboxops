@@ -190,7 +190,7 @@ def check_email_status(email) -> str:
     # Type-based status for older emails
     if email.type == "SPAM":
         return EmailStatus.CLOSED
-    elif email.type in ["ORDER", "APPROVAL"]:
+    elif email.type in ["ORDER", "APPROVAL", "SUPPORT_REQUEST"]:
         return EmailStatus.AWAITING_APPROVAL
     
     # Default status for unclassified emails
@@ -317,3 +317,25 @@ def extract_tags(body: str) -> list:
             inferred_tags.append(tag)
 
     return inferred_tags
+
+import re
+# from app.ai import openai_call
+
+def extract_customerMail_tags(text: str):
+    keywords = re.findall(r'\b(refund|invoice|login|password|delay|urgent|crash|complaint)\b', text.lower())
+    return list(set(keywords))
+
+from .ai import generate_summary
+
+def is_support_ticket(subject: str, body: str) -> bool:
+    """Heuristically detect if an email is a customer support inquiry."""
+    subject_lower = subject.lower()
+    body_lower = body.lower()
+    keywords = ["help", "support", "issue", "problem", "login", "error", "not working", "complaint", "ticket", "inquiry"]
+    combined = f"{subject} {body}".lower()
+    return any(word in subject_lower for word in keywords) or any(word in body_lower for word in keywords)
+
+
+async def classify_criticality(text: str):
+    prompt = f"Classify this support message's urgency (Low, Medium, High, Urgent):\n{text}\nRespond with only one word: Low, Medium, High, or Urgent."
+    return await generate_summary(prompt)

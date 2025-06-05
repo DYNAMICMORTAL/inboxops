@@ -40,8 +40,35 @@ Inbox - InboxOps
     <div class="container">
         <div style="display: flex; flex-direction: row; justify-content: space-between;" class="rowInfo">
             <h2>Recent Emails</h2>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-big-icon lucide-library-big"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/></svg>
-            
+            <div class="relative group flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-big-icon lucide-library-big">
+                    <rect width="8" height="18" x="3" y="3" rx="1"/>
+                    <path d="M7 3v18"/>
+                    <path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/>
+                </svg>
+                <!-- Tooltip: appears to the left of the SVG -->
+                <div style="width: 12vw;" class="absolute right-full top-1/2 -translate-y-1/2 mr-3 min-w-[16rem] max-w-xs w-[20rem] bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-900 z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 whitespace-normal break-words">
+                    <div class="mb-2 font-semibold text-gray-700">Email Status Info</div>
+                    <ul class="space-y-1">
+                        <li>
+                            <span class="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold align-middle">New</span>
+                            <span class="ml-2 text-gray-700">New Mail</span>
+                        </li>
+                        <li>
+                            <span class="inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle">Awaiting</span>
+                            <span class="ml-2 text-gray-700">If Mail type is undisclosed and needs human intervention</span>
+                        </li>
+                        <li>
+                            <span class="inline-block px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold align-middle">Awaiting Approval</span>
+                            <span class="ml-2 text-gray-700">Mail is Verified and Awaiting Approval. Turns to Approved if Outbound Email is sent to confirm.</span>
+                        </li>
+                        <li>
+                            <span class="inline-block px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold align-middle">Closed</span>
+                            <span class="ml-2 text-gray-700">Mail is SPAM</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <table class="table">
             <thead>
@@ -67,6 +94,8 @@ Inbox - InboxOps
                             <span class="badge badge-success">Order</span>
                         {% elif email.type == "APPROVAL" %}
                             <span class="badge badge-warning">Approval</span>
+                        {% elif email.type == "SUPPORT_REQUEST" %}
+                            <span class="badge badge-warning">Customer Support</span>
                         {% else %}
                             <span class="badge badge-danger">Spam</span>
                         {% endif %}
