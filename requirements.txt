@@ -9,5 +9,4 @@ openai
 jinja2
 postmarker
 ngrok
-google
-generativeai
+google-generativeai
