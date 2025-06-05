@@ -34,7 +34,7 @@ def get_db():
 
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["knowing-central-alpaca.ngrok-free.app", "localhost", "127.0.0.1"]
+    allowed_hosts=["knowing-central-alpaca.ngrok-free.app", "localhost", "127.0.0.1", "inboxops.onrender.com"]
 )
 
 app.add_middleware(
