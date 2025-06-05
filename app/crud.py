@@ -4,7 +4,7 @@ from . import models, schemas
 from .webhook import is_order_email, is_approval_email
 from .utils import extract_order_items, extract_tags, extract_approval_details
 
-def create_email(db: Session, email: schemas.EmailCreate):
+def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
     date_num = datetime.now().strftime('%Y%m%d')
     # Get count of emails of each type for today
     count = db.query(models.Email).filter(
@@ -54,6 +54,7 @@ def create_email(db: Session, email: schemas.EmailCreate):
         key=key,
         order_items=order_items,  # Save extracted order items
         tags=tags, # Save extracted tags
+        raw_json=raw_json,  # <-- Add this
     )
     
     db.add(db_email)

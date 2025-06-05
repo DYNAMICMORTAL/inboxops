@@ -95,8 +95,7 @@ Dashboard - InboxOps
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11M9 21V3m0 0L3 10m6-7l6 7" />
                     </svg>
                     <span class="font-black text-gray-700">#{{ order.id }}</span>
-                    <div class="orderKey font-black" style="display: none;"> {{ order.key }}
-                    </div>
+                    <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 font-black rounded">Key: {{ order.key }}</span>
                 </div>
                 <span class="badge badge-confirmed">Confirmed</span>
             </div>
@@ -129,12 +128,19 @@ Dashboard - InboxOps
                 <p class="text-sm text-gray-700">{{ order.summary }}</p>
             </div>
 
+            <!-- ...existing code... -->
             <div class="mb-4">
-                <p class="text-sm text-gray-500">Automation Progress</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-black h-2.5 rounded-full" style="width: 50%;"></div>
+              <p class="text-sm text-gray-500">Automation Progress</p>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-blue-600 h-2.5 rounded-full"
+                     style="width: '{{ order.automation_percent|default(0)|int }}%';">
                 </div>
-                </div>
+              </div>
+              <div class="flex justify-between mt-1 text-xs text-gray-500">
+                <span>{{ order.automation_completed if order.automation_completed is defined else 0 }}/3 steps</span>
+                <span>%</span>
+              </div>
+            </div>
 
             <div class="flex items-center justify-between text-sm text-gray-500">
                 <div class="flex items-center gap-2">
@@ -151,22 +157,28 @@ Dashboard - InboxOps
                     {% endfor %}
                 </div>
             </div>
+            <div class="order-items" style="display:none;">{{ order.order_items | tojson | safe }}</div>
+            <div class="mail-content" style="display:none;">{{ order.mail_content|safe }}</div>
+            <div class="raw-json" style="display:none;">{{ order.raw_json | tojson | safe }}</div>
         </a>
         {% endfor %}
     </div>
 </section>
 
 <div id="order-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[89vh] h-auto p-6" style="height:auto;max-height:89vh;">
         <div class="flex justify-between items-center mb-4">
             <h2 id="order-title" class="text-2xl font-bold text-gray-800">Order Details</h2>
+            {% for order in orders %}
+            <span class="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 font-black rounded">{{ order.key }}</span>
+            <!-- {% endfor %} -->
             <button id="close-modal" class="text-gray-500 hover:text-gray-800 transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div id="order-content" class="space-y-6 text-sm text-gray-700">
+        <div id="order-content" class="space-y-6 text-sm text-gray-700 overflow-y-auto" style="max-height:70vh;">
   <div class="flex justify-between items-center">
     <span class="text-lg font-semibold text-gray-800">Order #<span id="order-id">TC-XXXX-001</span></span>
     <div class="flex flex-col items-end text-xs text-right">
@@ -348,7 +360,7 @@ Dashboard - InboxOps
       <div class="flex justify-between items-center px-6 py-4 border-b">
         <div>
           <h2 class="text-xl font-semibold">Order #${order.id}</h2>
-          <p class="text-sm text-gray-500">Updated just now</p>
+          <p class="text-sm text-gray-500">Updated ${new Date(new Date().getTime() + 45 * 60000).toLocaleString()}</p>
         </div>
         <div class="flex items-center gap-4">
           <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">CONFIRMED</span>
@@ -358,69 +370,127 @@ Dashboard - InboxOps
 
       <div class="flex border-b">
         <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-6 py-3 font-semibold text-sm text-black border-b-2 border-black">Overview</button>
-        <button onclick="switchTab('details')" id="tab-details" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Details</button>
-        <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Timeline</button>
-        <button onclick="switchTab('actions')" id="tab-actions" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Actions</button>
+        <button onclick="switchTab('details')" id="tab-details" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Details</button>
+        <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Timeline</button>
+        <button onclick="switchTab('actions')" id="tab-actions" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Email</button>
       </div>
 
       <div id="tab-content" class="p-6 text-sm text-gray-700 space-y-6">
 
-        <!-- Overview -->
+                <!-- Overview -->
         <div id="content-overview">
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <h3 class="font-bold mb-2">👤 Customer Information</h3>
-              <p><strong>Name:</strong> ${order.customerName}</p>
-              <p><strong>Email:</strong> ${order.customerEmail}</p>
-              <p><strong>Customer Type:</strong> <span class="px-2 py-1 text-xs bg-gray-200 rounded">${order.customerType || 'N/A'}</span></p>
-            </div>
-            <div>
-              <h3 class="font-bold mb-2">🏷️ Tags & Classification</h3>
-              <div class="flex flex-wrap gap-2">
-                ${(order.tags || ['No Tags']).map(tag => `<span class="px-2 py-1 text-xs bg-gray-200 rounded">${tag}</span>`).join('')}
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Customer Information -->
+            <div class="col-span-2 bg-white rounded-xl border p-6">
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="inline-block">👤</span> Customer Information
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <div class="text-gray-500 text-sm mb-1">Name</div>
+                  <div class="font-bold text-lg text-gray-900">${order.customerName}</div>
+                  <div class="text-gray-500 text-sm mt-4 mb-1">Email</div>
+                  <div class="text-gray-700 text-sm">${order.customerEmail}</div>
+                </div>
+                <div>
+                  <div class="text-gray-500 text-sm mb-1">Company</div>
+                  <div class="font-bold text-lg text-gray-900">TechCorp Solutions</div>
+                  <div class="text-gray-500 text-sm mt-4 mb-1">Customer Type</div>
+                  <span class="bg-gray-200 text-xs px-2 py-1 rounded-full">${order.customerType || 'N/A'}</span>
+                </div>
               </div>
-              <h3 class="font-bold mt-4">📊 Metrics</h3>
-              <p><strong>Processing Time:</strong> ${order.processingTime || 'N/A'}</p>
-              <p><strong>Priority:</strong> ${order.priority || 'N/A'}</p>
+            </div>
+            <!-- Tags & Classification -->
+            <div class="bg-white rounded-xl border p-6">
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="inline-block">🏷️</span> Tags & Classification
+              </h3>
+              <div class="flex flex-wrap gap-2 mb-6">
+                ${(order.tags || ['No Tags']).map(tag => `<span class="bg-gray-100 px-2 py-1 text-xs rounded-full">${tag}</span>`).join('')}
+              </div>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="inline-block">�</span> Metrics
+              </h3>
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Processing Time</span>
+                  <span class="font-semibold text-gray-900">${order.processingTime || 'N/A'}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Priority</span>
+                  <span class="bg-gray-100 text-xs px-2 py-1 rounded-full">${order.priority || 'N/A'}</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div>
-            <h3 class="font-bold mt-6 mb-2">💲 Order Summary</h3>
-            <p class="text-xl font-bold text-black">USD ${order.totalValue}</p>
-            <p class="text-sm text-blue-600 underline mt-1">${order.quantity} items</p>
-            <div class="bg-blue-50 p-4 mt-4 rounded">
-              <p><strong>AI Summary:</strong> ${order.summary}</p>
+          <!-- Order Summary -->
+          <div class="bg-white rounded-xl border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="inline-block">$</span> Order Summary
+            </h3>
+            <div class="flex items-center mb-2">
+              <span class="text-2xl font-bold text-gray-900 mr-4">USD ${order.totalValue}</span>
+              <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">${order.items ? order.items.length : order.quantity} items</span>
+            </div>
+            <div class="bg-blue-50 p-4 mt-2 rounded">
+              <h4 class="font-medium text-blue-800 mb-1">AI Summary</h4>
+              <p class="text-sm text-blue-900">${order.summary}</p>
             </div>
           </div>
         </div>
 
-        <!-- Details -->
+                <!-- Details -->
         <div id="content-details" class="hidden">
-          <h3 class="font-bold mb-2">📦 Order Items</h3>
-          <ul class="space-y-4">
+          <h3 class="text-2xl font-bold mb-4">Order Items</h3>
+          <div class="space-y-6">
             ${(order.items || []).map(item => `
-              <li>
-                <strong>${item.name}</strong> (${item.quantity} × $${item.price}) – <span class="text-gray-500">${item.category}</span>
-                <p>USD ${item.total}</p>
-              </li>
+              <div class="flex justify-between items-center bg-gray-50 rounded-lg p-6">
+                <div>
+                  <div class="font-bold text-lg mb-1">${item.name}</div>
+                  <div class="text-gray-700 text-sm">Category: ${item.category}</div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold text-xl text-gray-900 mb-1">USD ${item.total.toLocaleString()}</div>
+                  <div class="text-gray-500 text-sm">Qty: ${item.quantity} × USD${item.price}</div>
+                </div>
+              </div>
             `).join('')}
-          </ul>
+          </div>
         </div>
 
         <!-- Timeline -->
         <div id="content-timeline" class="hidden">
-          <h3 class="font-bold mb-2">🕒 Timeline</h3>
-          <ul class="space-y-4">
+          <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+            <span class="inline-block">🕒</span> Timeline
+          </h3>
+          <div class="space-y-6">
             ${(order.timeline || []).map(event => `
-              <li><strong>${event.label}:</strong> ${event.time} <span class="text-green-600 font-semibold ml-2">✔ Completed</span></li>
+              <div class="flex items-start justify-between bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex items-start gap-4">
+                  <span class="mt-1 w-4 h-4 rounded-full bg-blue-400 flex-shrink-0"></span>
+                  <div>
+                    <div class="font-bold text-lg text-gray-900">${event.label}</div>
+                    <div class="text-gray-500 text-xs mb-1">${event.time}</div>
+                    <div class="text-gray-700 text-sm">${event.details || ''}</div>
+                  </div>
+                </div>
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold self-center">${event.status || 'completed'}</span>
+              </div>
             `).join('')}
-          </ul>
+          </div>
         </div>
+        
 
-        <!-- Actions -->
+        <!-- Email Actions -->
         <div id="content-actions" class="hidden">
-          <h3 class="font-bold">⚙️ Actions</h3>
-          <p class="text-gray-500">Actions for this order can be listed here.</p>
+          <h3 class="font-bold mb-2">📧 Original Email</h3>
+            <div class="bg-gray-50 border rounded p-4 text-sm font-mono whitespace-pre-line" style="max-height:300px;overflow:auto;">
+          ${order.mailContent ? order.mailContent : '<span class="text-gray-400">No original mail content available.</span>'}
+          <h3 class="font-bold mt-4 mb-2">📝 Postmark Inbound JSON</h3>
+  <pre class="bg-gray-100 border rounded p-4 text-xs" style="max-height:300px;overflow:auto;">
+    ${order.rawJson ? JSON.stringify(JSON.parse(order.rawJson), null, 2) : '<span class="text-gray-400">No JSON available.</span>'}
+  </pre>
+        </div>
         </div>
 
       </div>
@@ -466,13 +536,26 @@ const order = {
     summary: summaryText,
     tags: tags.length > 0 ? tags : ['No Tags'],
     processingTime: '2.5 hours',
+    mailContent: card.querySelector('.mail-content')?.innerHTML.trim() || '',
+    rawJson: card.querySelector('.raw-json')?.textContent.trim() || '',
     priority: 'low',
     customerType: 'existing',
-    items: [
-        { name: "Premium Enterprise License", quantity: 50, price: 299, total: 14950, category: "Software" },
-        { name: "Priority Support Package", quantity: 1, price: 500, total: 500, category: "Support" },
-        { name: "Training Sessions", quantity: 2, price: 150, total: 300, category: "Training" },
-    ],
+    // items: [
+    //     { name: "Premium Enterprise License", quantity: 50, price: 299, total: 14950, category: "Software" },
+    //     { name: "Priority Support Package", quantity: 1, price: 500, total: 500, category: "Support" },
+    //     { name: "Training Sessions", quantity: 2, price: 150, total: 300, category: "Training" },
+    // ],
+    items: (() => {
+    const itemsDiv = card.querySelector('.order-items');
+    if (itemsDiv && itemsDiv.textContent.trim()) {
+        try {
+            return JSON.parse(itemsDiv.textContent.trim());
+        } catch (e) {
+            return [];
+        }
+    }
+    return [];
+})(),
     timeline: [
         { label: "Credit check completed", time: "Jan 15, 14:32" },
         { label: "Inventory reserved", time: "Jan 15, 14:35" },
@@ -481,6 +564,7 @@ const order = {
         { label: "Customer notification sent", time: "Jan 15, 15:15" },
     ]
 };
+        console.log("Mail content for modal:", order.mailContent);
 
 
             openModal(order);
@@ -496,6 +580,19 @@ const order = {
             closeModalHandler();
         }
     });
+
+    function getAutomationProgress(order) {
+    // Example logic: adjust according to your backend status fields
+    let steps = [
+        { label: "Received", done: !!order.received },
+        { label: "Processed", done: !!order.processed },
+        { label: "Summary Generated", done: !!order.summary }
+    ];
+    let completed = steps.filter(s => s.done).length;
+    let percent = Math.round((completed / steps.length) * 100);
+    return { steps, completed, total: steps.length, percent };
+    
+}
 </script>
 <script>
     const switchTab = (tabId) => {

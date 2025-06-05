@@ -90,7 +90,7 @@ def home(request: Request, db: Session = Depends(get_db)):
 def dashboard(request: Request, db: Session = Depends(get_db)):
     print("Fetching dashboard data...")
     orders = db.query(Order).order_by(Order.id.desc()).limit(10).all()
-    emails = crud.get_emails(db, limit=20)
+    emails = crud.get_emails(db, limit=100)
     approvals = db.query(Approval).order_by(Approval.id.desc()).limit(10).all()
     total_processed = db.query(Email).count()
     processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
@@ -111,6 +111,26 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     processing_rate = (processed_emails / total_processed) * 100 if total_processed else 0
     processing_message = "All mails processed" if processing_rate == 100 else f"{processing_rate:.2f}%"
     error_rate = db.query(Email).filter(Email.status == "Error").count() / total_processed * 100 if total_processed else 0
+
+    # Attach original mail content to each order (by matching key)
+    email_map = {email.key: email for email in emails}
+    # Calculate automation progress for each order
+    for order in orders:
+        steps = [
+            bool(getattr(order, "received", False)),
+            bool(getattr(order, "processed", False)),
+            bool(getattr(order, "summary", False)),
+        ]
+        order.automation_completed = sum(steps)
+        order.automation_percent = int(order.automation_completed / 3 * 100)
+        order.mail_content = ""
+        order.raw_json = None
+        if order.key and order.key in email_map:
+            email = email_map[order.key]  # <-- define email here
+            order.mail_content = email_map[order.key].html_body or email_map[order.key].text_body or ""
+            print(f"Order {order.id} key={order.key} mail_content={order.mail_content[:100]}")
+            order.raw_json = email.raw_json  # <-- Add this
+
     orders_dict = [order.__dict__ for order in orders]
     emails_dict = [email.__dict__ for email in emails]
 
@@ -119,8 +139,6 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     print("Processed Today:", processed_today)
     print("Success Rate:", success_rate)
     print("Error Rate:", error_rate)
-    # print("Orders:", orders_dict)
-    # print("Emails:", emails_dict)
     return templates.TemplateResponse(
         "dashboard.html",
         {
@@ -217,6 +235,15 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         error_rate = 3.2  # Example static value; replace with dynamic calculation
         error_rate_change = -0.8  # Example static value; replace with dynamic calculation
         last_error_time = "2 hours ago"  # Example static value; replace with dynamic calculation
+        # Fetch more emails so the map is complete
+        emails = crud.get_emails(db, limit=1000)
+        # Build the map and attach mail_content
+        email_map = {email.key: email for email in emails}
+        for order in orders:
+            order.mail_content = ""
+            if order.key and order.key in email_map:
+                order.mail_content = email_map[order.key].html_body or email_map[order.key].text_body or ""
+            print(f"Order {order.id} key={order.key} mail_content={order.mail_content[:100]}")
         return templates.TemplateResponse(
             "dashboard.html",
             {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date, "total_processed": total_processed,

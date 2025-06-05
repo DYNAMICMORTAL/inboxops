@@ -31,6 +31,7 @@ class Email(Base):
     status = Column(String, default=EmailStatus.NEW)
     order_items = Column(JSON, nullable=True)  # Store extracted order items
     tags = Column(JSON, nullable=True)  # Store extracted tags
+    raw_json = Column(JSON, nullable=True)  # <-- Add this line
 
 class Order(Base):
     __tablename__ = "orders"

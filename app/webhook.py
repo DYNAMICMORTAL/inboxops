@@ -4,6 +4,7 @@ from . import crud, schemas, ai
 from .database import SessionLocal
 from .models import Order, Approval
 from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details, extract_order_items, extract_tags
+import json
 from postmarker.core import PostmarkClient
 
 router = APIRouter()
@@ -58,7 +59,7 @@ async def inbound_email(
     )
 
     # 1. Save Email Record
-    db_email = crud.create_email(db, email_data)
+    db_email = crud.create_email(db, email_data, raw_json=json.dumps(payload))
     print("Saved email record:", db_email)
 
     # 2. Order Detection
