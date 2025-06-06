@@ -207,7 +207,7 @@ async def ai_chat(request: Request, db: Session = Depends(get_db)):
         for a in approvals
     ])
     ticket_context = "\n".join([
-        f"Ticket ID: {t.id}, Issue: {t.issue_type}, Status: {t.status}, Sender: {t.sender}, Summary: {t.summary}"
+        f"Ticket ID: {t.id}, Issue: {t.category}, Status: {t.status}, Sender: {t.sender}, Summary: {t.summary}"
         for t in tickets
     ])
     hr_context = "\n".join([

@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto mt-8 bg-white rounded-xl shadow-lg p-6">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2zm-18 0a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/></svg>
+    Customer Support Tickets Chat
+  </h2>
+  <div class="mb-4">
+    <div class="overflow-y-auto max-h-64 border rounded p-3 bg-gray-50">
+      {% for ticket in tickets %}
+        <div class="mb-3">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-gray-800">{{ ticket.sender }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full {{ 'bg-red-100 text-red-700' if ticket.criticality == 'Urgent' else 'bg-yellow-100 text-yellow-700' if ticket.criticality == 'High' else 'bg-green-100 text-green-700' }}">{{ ticket.criticality }}</span>
+            <span class="text-xs text-gray-400">{{ ticket.created_at.strftime('%b %d, %I:%M %p') }}</span>
+          </div>
+          <div class="text-gray-700">{{ ticket.summary }}</div>
+          <div class="text-xs text-gray-500">Status: {{ ticket.status|capitalize }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <form id="support-chat-form" class="flex gap-2">
+    <input id="support-chat-input" type="text" class="flex-1 border rounded px-3 py-2" placeholder="Ask about support tickets progress..." />
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Ask AI</button>
+  </form>
+  <div id="support-chat-response" class="mt-4 text-blue-900"></div>
+</div>
+<script>
+document.getElementById('support-chat-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('support-chat-input');
+    const question = input.value.trim();
+    if (!question) return;
+    input.disabled = true;
+    document.getElementById('support-chat-response').textContent = "Thinking...";
+    const res = await fetch('/ai-chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: question})
+    });
+    const data = await res.json();
+    document.getElementById('support-chat-response').textContent = data.answer;
+    input.disabled = false;
+    input.value = '';
+};
+</script>
+{% endblock %}

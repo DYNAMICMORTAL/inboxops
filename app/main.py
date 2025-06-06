@@ -49,7 +49,7 @@ app.add_middleware(
 from fastapi.templating import Jinja2Templates
 from app.utils import format_date
 from jinja2 import Environment, FileSystemLoader
-from datetime import datetime
+from datetime import datetime, timedelta
 
 templates = Jinja2Templates(directory="templates")
 templates.env.filters["date"] = format_date
@@ -101,24 +101,58 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     total_processed = db.query(Email).count()
     processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
     support_tickets = get_all_tickets(db)
-    success_rate = 96.8
-    success_rate_change = 2.3
-    avg_processing_time = 1.4  
-    # active_webhooks = 12  # Example static value; replace with dynamic calculation
+    processed_emails = db.query(Email).filter(Email.status == "Processed").count()
+    success_rate = (processed_emails / total_processed) * 100 if total_processed else 0
+    processed_yesterday = db.query(Email).filter(
+        Email.received_at >= (datetime.now().date() - timedelta(days=1)),
+        Email.received_at < datetime.now().date()
+    ).count()
+    success_rate_yesterday = (processed_yesterday / total_processed) * 100 if total_processed else 0
+    success_rate_change = success_rate - success_rate_yesterday
     webhook_endpoints = 4
     avg_latency = 198
     active_models = 15
-    top_classification_type = "Invoices"
-    top_classification_percentage = 26.6
-    # error_rate = 3.2  # Example static value; replace with dynamic calculation
+    from collections import Counter
+    all_tags = [tag for order in orders if order.tags for tag in order.tags]
+    if all_tags:
+        tag_counts = Counter(all_tags)
+        top_classification_type, top_classification_count = tag_counts.most_common(1)[0]
+        top_classification_percentage = round((top_classification_count / len(all_tags)) * 100, 2)
+    else:
+        top_classification_type = "N/A"
+        top_classification_percentage = 0
+    from collections import Counter
+    all_tags = [tag for order in orders if order.tags for tag in order.tags]
+    if all_tags:
+        tag_counts = Counter(all_tags)
+        top_classification_type, top_classification_count = tag_counts.most_common(1)[0]
+        top_classification_percentage = round((top_classification_count / len(all_tags)) * 100, 2)
+    else:
+        top_classification_type = "N/A"
+        top_classification_percentage = 0
     error_rate_change = -0.8
     last_error_time = "2 hours ago"
     active_webhooks = db.query(Approval).count()
     processed_emails = db.query(Email).filter(Email.status == "Processed").count()
-    processing_rate = (processed_emails / total_processed) * 100 if total_processed else 0
-    processing_message = "All mails processed" if processing_rate == 100 else f"{processing_rate:.2f}%"
+    success_rate = (processed_emails / total_processed) * 100 if total_processed else 0
+    processed_yesterday = db.query(Email).filter(
+        Email.received_at >= (datetime.now().date() - timedelta(days=1)),
+        Email.received_at < datetime.now().date()
+    ).count()
+    success_rate_yesterday = (processed_yesterday / total_processed) * 100 if total_processed else 0
+    success_rate_change = success_rate - success_rate_yesterday
+    
+    processing_message = "All mails processed" if success_rate == 100 else f"{success_rate:.2f}%"
     error_rate = db.query(Email).filter(Email.status == "Error").count() / total_processed * 100 if total_processed else 0
 
+    from sqlalchemy import func
+    avg_processing_time = 0
+    processed_times = db.query(Email).filter(Email.status == "Processed").all()
+    if processed_times:
+        avg_processing_time = sum(
+            [(datetime.now() - e.received_at).total_seconds() for e in processed_times]
+        ) / len(processed_times)
+        avg_processing_time = round(avg_processing_time / 60, 2)  # in minutes
     # Attach original mail content to each order (by matching key)
     email_map = {email.key: email for email in emails}
     # Calculate automation progress for each order
@@ -157,7 +191,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "check_email_status": check_email_status,  # Pass the function to the template
             "total_processed": total_processed,
             "processed_today": processed_today,
-            "processing_rate": processing_rate,
+            "processing_rate": success_rate,
             "success_rate": success_rate,
             "success_rate_change": success_rate_change,
             "avg_processing_time": avg_processing_time,
@@ -232,27 +266,48 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         total_processed = db.query(Email).count()
         processed_today = db.query(Email).filter(Email.received_at >= datetime.now().date()).count()
         support_tickets = get_all_tickets(db)
-        success_rate = 96.8  # Example static value; replace with dynamic calculation
-        success_rate_change = 2.3  # Example static value; replace with dynamic calculation
-        avg_processing_time = 1.4  # Example static value; replace with dynamic calculation
-        active_webhooks = 12  # Example static value; replace with dynamic calculation
-        webhook_endpoints = 4  # Example static value; replace with dynamic calculation
-        avg_latency = 198  # Example static value; replace with dynamic calculation
-        active_models = 15  # Example static value; replace with dynamic calculation
-        top_classification_type = "Invoices"  # Example static value; replace with dynamic calculation
-        top_classification_percentage = 26.6  # Example static value; replace with dynamic calculation
-        error_rate = 3.2  # Example static value; replace with dynamic calculation
-        error_rate_change = -0.8  # Example static value; replace with dynamic calculation
-        last_error_time = "2 hours ago"  # Example static value; replace with dynamic calculation
-        # Fetch more emails so the map is complete
+        processed_emails = db.query(Email).filter(Email.status == "Processed").count()
+        success_rate = (processed_emails / total_processed) * 100 if total_processed else 0
+        processed_yesterday = db.query(Email).filter(
+            Email.received_at >= (datetime.now().date() - timedelta(days=1)),
+            Email.received_at < datetime.now().date()
+        ).count()
+        success_rate_yesterday = (processed_yesterday / total_processed) * 100 if total_processed else 0
+        success_rate_change = success_rate - success_rate_yesterday
+        active_webhooks = db.query(Approval).count() 
+        webhook_endpoints = 4
+        avg_latency = 198 
+        active_models = 15
+        # top_classification_type = "Invoices"
+        # top_classification_percentage = 26.6
+        from collections import Counter
+        all_tags = [tag for order in orders if order.tags for tag in order.tags]
+        if all_tags:
+            tag_counts = Counter(all_tags)
+            top_classification_type, top_classification_count = tag_counts.most_common(1)[0]
+            top_classification_percentage = round((top_classification_count / len(all_tags)) * 100, 2)
+        else:
+            top_classification_type = "N/A"
+            top_classification_percentage = 0
+        error_rate = 3.2
+        error_rate_change = -0.8
+        last_error_time = "2 hours ago"
         emails = crud.get_emails(db, limit=1000)
-        # Build the map and attach mail_content
         email_map = {email.key: email for email in emails}
         for order in orders:
             order.mail_content = ""
             if order.key and order.key in email_map:
                 order.mail_content = email_map[order.key].html_body or email_map[order.key].text_body or ""
             print(f"Order {order.id} key={order.key} mail_content={order.mail_content[:100]}")
+        from sqlalchemy import func
+        avg_processing_time = 0
+        processed_times = db.query(Email).filter(Email.status == "Processed").all()
+        if processed_times:
+            avg_processing_time = sum(
+                [(datetime.now() - e.received_at).total_seconds() for e in processed_times]
+            ) / len(processed_times)
+            avg_processing_time = round(avg_processing_time / 60, 2)  # in minutes
+
         return templates.TemplateResponse(
             "dashboard.html",
             {"request": request, "orders": orders, "emails": emails, "approvals": approvals, "check_email_status": check_email_status, "format_date": format_date, "total_processed": total_processed,
@@ -276,3 +331,33 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
         return templates.TemplateResponse(
             "404.html", {"request": request}, status_code=404
         )
+
+@app.get("/new", response_class=HTMLResponse)
+def new_chat(request: Request, db: Session = Depends(get_db)):
+    tickets = db.query(models.SupportTicket).order_by(models.SupportTicket.created_at.desc()).limit(20).all()
+    return templates.TemplateResponse("new_chat.html", {"request": request, "tickets": tickets})
+
+@app.get("/support-customer", response_class=HTMLResponse)
+def support_chat(request: Request, db: Session = Depends(get_db)):
+    tickets = db.query(models.SupportTicket).order_by(models.SupportTicket.created_at.desc()).limit(20).all()
+    # Convert SQLAlchemy models to dicts
+    tickets_dict = []
+    for t in tickets:
+        tickets_dict.append({
+            "id": t.id,
+            "sender": t.sender,
+            "subject": t.subject,
+            "message": t.message,
+            "category": t.category,
+            "criticality": t.criticality,
+            "status": t.status,
+            "summary": t.summary,
+            "tags": t.tags.split(",") if t.tags else [],
+            "key": t.key,
+            "assigned_to": t.assigned_to,
+            "created_at": t.created_at.strftime('%b %d, %Y %H:%M') if t.created_at else "",
+            # Add any other fields you need for your frontend
+            "postmarkData": t.raw_json if hasattr(t, "raw_json") else {},
+            # You can add more fields as needed
+        })
+    return templates.TemplateResponse("support_customer.html", {"request": request, "tickets": tickets_dict})

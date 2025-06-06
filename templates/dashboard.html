@@ -13,50 +13,97 @@ Dashboard - InboxOps
     <p class="text-3xl font-bold text-blue-800">{{ total_processed }}</p>
     <p class="text-sm text-blue-500">+{{ processed_today }} today</p>
     <div class="mt-2">
-        <p class="text-xs text-blue-400">Processed Emails: {{ total_processed }}%</p>
-        <div class="w-full bg-blue-200 rounded-full h-2.5">
-            <div class="bg-blue-600 h-2.5 rounded-full" data-processing-rate="{{ processing_rate|default(0) }}"></div>
-        </div>
+      <p class="text-xs text-blue-400">Processed Emails: {{ total_processed }}%</p>
+      <div class="w-full bg-blue-200 rounded-full h-2.5">
+        <div class="bg-blue-600 h-2.5 rounded-full" data-processing-rate="{{ processing_rate|default(0) }}"></div>
+      </div>
     </div>
     </div>
 
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-green-600">Success Rate</h3>
-        <p class="text-3xl font-bold text-green-800">{{ success_rate }}%</p>
-        <p class="text-sm text-green-500">↑ {{ success_rate_change }}% from last week</p>
-        <p class="text-xs text-green-400">Avg. Processing Time: {{ avg_processing_time }}s</p>
+      <h3 class="text-lg font-semibold text-green-600">Success Rate</h3>
+      <p class="text-3xl font-bold text-green-800">{{ success_rate }}%</p>
+      <p class="text-sm text-green-500">↑ {{ success_rate_change }}% from last week</p>
+      <p class="text-xs text-green-400">Avg. Processing Time: {{ avg_processing_time }}s</p>
     </div>
 
     <div class="card bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-orange-600">Active Webhooks</h3>
-        <p class="text-3xl font-bold text-orange-800">{{ active_webhooks }}</p>
-        <p class="text-sm text-orange-500">{{ webhook_endpoints }} endpoints configured</p>
-        <p class="text-xs text-orange-400">Avg. Latency: {{ avg_latency }}ms</p>
+      <h3 class="text-lg font-semibold text-orange-600">Active Webhooks</h3>
+      <p class="text-3xl font-bold text-orange-800">{{ active_webhooks }}</p>
+      <p class="text-sm text-orange-500">{{ webhook_endpoints }} endpoints configured</p>
+      <p class="text-xs text-orange-400">Avg. Latency: {{ avg_latency }}ms</p>
     </div>
 
     <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-purple-600">Pending Approvals</h3>
-        <p class="text-3xl font-bold text-purple-800">{{ approvals|length }}</p>
-        <p class="text-sm text-purple-500">Last Approval: {{ approvals[0].created_at.strftime('%b %d, %I:%M %p') if approvals }}</p>
+      <h3 class="text-lg font-semibold text-purple-600">Pending Approvals</h3>
+      <p class="text-3xl font-bold text-purple-800">{{ approvals|length }}</p>
+      <p class="text-sm text-purple-500">Last Approval: {{ approvals[0].created_at.strftime('%b %d, %I:%M %p') if approvals }}</p>
     </div>
 
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-green-600">Orders</h3>
-        <p class="text-3xl font-bold text-green-800">{{ orders|length }}</p>
-        <p class="text-sm text-green-500">Last Order: {{ orders[0].created_at.strftime('%b %d, %I:%M %p') if orders }}</p>
+      <h3 class="text-lg font-semibold text-green-600">Orders</h3>
+      <p class="text-3xl font-bold text-green-800">{{ orders|length }}</p>
+      <p class="text-sm text-green-500">Last Order: {{ orders[0].created_at.strftime('%b %d, %I:%M %p') if orders }}</p>
     </div>
 
     <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-purple-600">Classifications</h3>
-        <p class="text-3xl font-bold text-purple-800">{{ active_models }}</p>
-        <p class="text-sm text-purple-500">Top Type: {{ top_classification_type }} ({{ top_classification_percentage }}%)</p>
+      <h3 class="text-lg font-semibold text-purple-600">Classifications</h3>
+      <p class="text-3xl font-bold text-purple-800">{{ active_models }}</p>
+      <p class="text-sm text-purple-500">Top Type: {{ top_classification_type }} ({{ top_classification_percentage }}%)</p>
     </div>
     <div class="card bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm">
-        <h3 class="text-lg font-semibold text-red-600">Error Rate</h3>
-        <p class="text-3xl font-bold text-red-800">{{ error_rate }}%</p>
-        <p class="text-sm text-red-500">↓ {{ error_rate_change }}% from yesterday</p>
-        <p class="text-xs text-red-400">Last Error: {{ last_error_time }}</p>
+      <h3 class="text-lg font-semibold text-red-600">Error Rate</h3>
+      <p class="text-3xl font-bold text-red-800">{{ error_rate }}%</p>
+      <p class="text-sm text-red-500">↓ {{ error_rate_change }}% from yesterday</p>
+      <p class="text-xs text-red-400">Last Error: {{ last_error_time }}</p>
     </div>
+
+    <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm relative">
+      <h3 class="text-lg font-semibold text-green-600">DKIM Signature</h3>
+      <p class="text-3xl font-bold text-green-800">Valid</p>
+      <p class="text-sm text-green-500">All emails are signed</p>
+      <button class="text-sm text-blue-500 underline mt-2" onclick="showDkimInfo()">What is DKIM?</button>
+      <div id="dkim-info-popup" class="hidden absolute top-12 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-64 z-10">
+      <p class="text-sm text-gray-700">DKIM (DomainKeys Identified Mail) is an email authentication method that uses public-key cryptography to sign emails and verify that the message body and attachments were not altered in transit.</p>
+      <button class="text-xs text-blue-500 underline mt-2" onclick="hideDkimInfo()">Close</button>
+      </div>
+    </div>
+
+    <script>
+      function showDkimInfo() {
+      document.getElementById('dkim-info-popup').classList.remove('hidden');
+      }
+
+      function hideDkimInfo() {
+      document.getElementById('dkim-info-popup').classList.add('hidden');
+      }
+    </script>
+
+    <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm relative">
+      <h3 class="text-lg font-semibold text-green-600">SPF Policy</h3>
+      <p class="text-3xl font-bold text-green-800">Valid</p>
+      <p class="text-sm text-green-500">SPF checks passed</p>
+      <button class="text-sm text-blue-500 underline mt-2" onclick="showSpfInfo()">What is SPF?</button>
+      <div id="spf-info-popup" class="hidden absolute top-12 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-64 z-10">
+        <p class="text-sm text-gray-700">
+          SPF (Sender Policy Framework) is an email authentication standard that helps detect forged sender addresses, protecting both senders and recipients from spam, spoofing, and phishing attempts.
+        </p>
+        <p class="text-sm text-gray-700 mt-2">
+          PS: Postmark blocks spam inbound mails by parsing JSON.
+        </p>
+        <button class="text-xs text-blue-500 underline mt-2" onclick="hideSpfInfo()">Close</button>
+      </div>
+    </div>
+
+    <script>
+      function showSpfInfo() {
+        document.getElementById('spf-info-popup').classList.remove('hidden');
+      }
+
+      function hideSpfInfo() {
+        document.getElementById('spf-info-popup').classList.add('hidden');
+      }
+    </script>
 </section>
 
 <section class="bg-gray-100 shadow-md rounded-lg p-6 mb-6">
@@ -79,7 +126,7 @@ Dashboard - InboxOps
         </a>
         <a href="#" id="customer-enquiries-tab" class="nav-card bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-gray-100 active:bg-gray-200">
             <h3 class="text-lg font-semibold text-gray-600">Customer Enquiries</h3>
-            <p class="text-sm text-gray-500">Coming soon</p>
+            <p class="text-sm text-gray-500">View Tickets</p>
         </a>
     </nav>
 </section>
@@ -296,68 +343,192 @@ Dashboard - InboxOps
         {% endfor %}
     </div>
 </section>
-<section class="mb-8 customerEnquiryCard">
-    <h2 class="text-xl font-semibold mb-3">Customer Enquiries</h2>
+
+<section class="mb-8 mt-3 customerEnquiryCard">
+    <h2 class="text-xl font-semibold mb-3">Customer Enquiries Support Issues Tickets</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for ticket in support_tickets %}
-                <a href="#" class="customer-enquiry-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105"
+      {% for ticket in support_tickets %}
+        <a href="#"
+           class="customer-enquiry-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105"
+           data-id="{{ ticket.id }}"
            data-subject="{{ ticket.subject }}"
            data-sender="{{ ticket.sender }}"
            data-category="{{ ticket.category }}"
            data-status="{{ ticket.status }}"
+           data-message="{{ ticket.message|e }}"
            data-summary="{{ ticket.summary }}"
+           data-tags="{{ ticket.tags }}"
            data-created="{{ ticket.created_at.strftime('%b %d, %I:%M %p') }}"
-           data-tags="{{ ticket.tags or '' }}">
-            <div class="flex items-center justify-between mb-2">
-                <div>
-                    <div class="font-bold text-lg text-gray-900">{{ ticket.subject }}</div>
-                    <div class="text-gray-500 text-sm">{{ ticket.sender }}</div>
+           data-email="{{ ticket.email if ticket.email else '' }}"
+           data-estimated-value="{{ ticket.estimated_value or '' }}"
+           data-criticality="{{ ticket.criticality }}"
+           data-assigned="{{ ticket.assigned_to or '' }}"
+           data-rawjson="{{ ticket.raw_json | tojson | safe if ticket.raw_json else '' }}"
+        >
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-black text-gray-700">{{ ticket.subject }}</span>
                 </div>
-                <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">
-                    {{ ticket.status|capitalize }}
-                </span>
+                <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">{{ ticket.status|capitalize }}</span>
             </div>
-            <div class="flex items-center gap-2 mb-2">
-                <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{{ ticket.category }}</span>
-                {% if ticket.criticality %}
-                <span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full">{{ ticket.criticality }}</span>
-                {% endif %}
+            <div class="mb-4">
+                <p class="text-sm text-gray-500">Category</p>
+                <p class="font-semibold text-lg text-gray-800">{{ ticket.category or "General" }}</p>
             </div>
-            <div class="bg-green-50 text-green-800 font-bold text-xl rounded px-4 py-2 mb-2">
-                {{ ticket.estimated_value or '' }}
+            <div class="mb-4 flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-gray-500">Inquirer</p>
+                    <p class="font-semibold text-lg text-gray-800">{{ ticket.sender }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Type</p>
+                    <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{{ ticket.category or "enquiry" }}</span>
+                </div>
             </div>
-            <div class="mb-2">
-                <div class="text-xs text-gray-500 mb-1">Description:</div>
-                <div class="text-gray-800 text-sm">{{ ticket.summary }}</div>
+            <div class="mb-4">
+                <p class="text-xs text-gray-500 mb-1">Description:</p>
+                <p class="text-gray-800 text-sm">{{ ticket.summary }}</p>
             </div>
-            <div class="flex items-center justify-between mt-2">
-                <div class="flex items-center gap-1 text-xs text-gray-500">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-2 gap-2">
+                <div class="flex items-center gap-2 text-xs text-gray-500 mb-2 sm:mb-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <span>Response: 2 hours</span>
+                    <span class="text-sm font-black">Response: 2 hours</span>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     {% for tag in (ticket.tags.split(',') if ticket.tags else []) %}
-                    <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{{ tag }}</span>
+                    <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full mb-1">{{ tag }}</span>
                     {% endfor %}
                 </div>
             </div>
         </a>
-        {% endfor %}
+      {% endfor %}
     </div>
 </section>
+
 <!-- Customer Enquiry Modal -->
 <div id="customerEnquiryModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 hidden">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative">
-    <button id="closeCustomerEnquiryModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
-    <h2 class="text-xl font-bold mb-2" id="modalEnquirySubject"></h2>
-    <div class="mb-2 text-gray-600" id="modalEnquirySender"></div>
-    <div class="mb-2 text-gray-600" id="modalEnquiryCategory"></div>
-    <div class="mb-2 text-gray-600" id="modalEnquiryStatus"></div>
-    <div class="mb-4 bg-cyan-50 rounded p-3" id="modalEnquirySummary"></div>
-    <div class="text-xs text-gray-400" id="modalEnquiryCreated"></div>
-    <div class="flex gap-2 mt-2" id="modalEnquiryTags"></div>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[89vh] h-auto p-6 relative overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 id="enquiry-modal-title" class="text-2xl font-bold text-gray-800">Customer Enquiry Details</h2>
+      <button id="closeCustomerEnquiryModal" class="text-gray-500 hover:text-gray-800 transition duration-200 text-2xl">&times;</button>
+    </div>
+    <div class="flex border-b mb-4">
+      <button onclick="switchEnquiryTab('overview')" id="enquiry-tab-overview" class="tab-btn px-6 py-3 font-semibold text-sm text-black border-b-2 border-black">Overview</button>
+      <button onclick="switchEnquiryTab('details')" id="enquiry-tab-details" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Details</button>
+      <button onclick="switchEnquiryTab('timeline')" id="enquiry-tab-timeline" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Timeline</button>
+      <button onclick="switchEnquiryTab('actions')" id="enquiry-tab-actions" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500">Email</button>
+    </div>
+    <div id="enquiry-tab-content" class="p-4 text-sm text-gray-700 space-y-6 overflow-y-auto" style="max-height:60vh;">
+      <!-- Overview -->
+      <div id="enquiry-content-overview">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <!-- Inquirer Information -->
+          <div class="col-span-2 bg-white rounded-xl border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="inline-block">👤</span> Inquirer Information
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="text-gray-500 text-sm mb-1">Name</div>
+                <div class="font-bold text-lg text-gray-900" id="modalEnquirySender"></div>
+                <div class="text-gray-500 text-sm mt-4 mb-1">Email</div>
+                <div class="text-gray-700 text-sm" id="modalEnquiryEmail">{{support_tickets.sender}}</div>
+              </div>
+              <div>
+                <div class="text-gray-500 text-sm mb-1">Company</div>
+                <div class="font-bold text-lg text-gray-900" id="N/A"></div>
+                <div class="text-gray-500 text-sm mt-4 mb-1">Source</div>
+                <span id="modalEnquirySource" class="bg-gray-100 text-xs px-2 py-1 rounded-full">email</span>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-6">
+              <div>
+                <div class="text-gray-500 text-sm mb-1">Response Time</div>
+                <span id="modalEnquiryResponseTime" class="text-green-600 font-bold">2 hours</span>
+              </div>
+              <div>
+                <div class="text-gray-500 text-sm mb-1">Status</div>
+                <span id="modalEnquiryStatus" class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Tags & Classification -->
+          <div class="bg-white rounded-xl border p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="inline-block">🏷️</span> Tags & Classification
+            </h3>
+            <div class="flex flex-wrap gap-2 mb-6" id="modalEnquiryTags"></div>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="inline-block">📈</span> Metrics
+            </h3>
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Processing Time</span>
+                <span id="modalEnquiryProcessingTime" class="font-semibold text-gray-900">2.5 hours</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Priority</span>
+                <span id="modalEnquiryPriority" class="bg-gray-100 text-xs px-2 py-1 rounded-full">{{support_tickets.criticality}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Enquiry Summary -->
+        <div class="bg-white rounded-xl border p-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <span class="inline-block">💬</span> Inquiry Details
+          </h3>
+          <div class="flex items-center mb-2">
+            <span class="bg-gray-100 text-xs px-2 py-1 rounded-full mr-2" id="modalEnquiryCategory"></span>
+          </div>
+          <div class="mb-2">
+            <span class="font-bold">Description</span>
+            <div id="modalEnquirySummary" class="text-gray-800 mt-1"></div>
+          </div>
+          <div class="mb-2">
+            <span class="font-bold">Estimated Value</span><br>
+            <span id="modalEnquiryEstimatedValue" class="text-green-600 font-bold text-xl"></span>
+          </div>
+        </div>
+      </div>
+      <!-- Details -->
+      <div id="enquiry-content-details" class="hidden">
+        <h3 class="text-2xl font-bold mb-4">Details</h3>
+        <div class="space-y-2">
+          <div><span class="font-bold">Criticality:</span> <span id="modalEnquiryCriticality" class="inline-block px-2 py-0.5 rounded-full text-xs"></span></div>
+          <div><span class="font-bold">Status:</span> <span id="modalEnquiryStatusDetail"></span></div>
+          <div><span class="font-bold">Assigned To:</span> <span id="modalEnquiryAssigned"></span></div>
+          <div><span class="font-bold">Created At:</span> <span id="modalEnquiryCreated"></span></div>
+          <!-- Add this where you want the JSON button and block to appear in the modal -->
+          <div class="mt-4">
+            <label class="font-semibold text-gray-800">Raw Postmark JSON:</label>
+            <button id="toggleRawJsonBtn" type="button" class="ml-2 px-3 py-1 bg-gray-100 rounded border text-xs">Show Raw Postmark JSON</button>
+            <pre id="modalEnquiryRawJsonBlock" class="bg-gray-100 border rounded p-4 text-xs mt-2 hidden" style="max-height:300px;overflow:auto;"></pre>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="font-bold">Gemini AI Summary from Mail Content:</span>
+          <div id="modalEnquiryDetails" class="text-gray-700"></div>
+        </div>
+      </div>
+      <!-- Timeline -->
+      <div id="enquiry-content-timeline" class="hidden">
+        <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span class="inline-block">🕒</span> Timeline
+        </h3>
+        <div id="modalEnquiryTimeline" class="space-y-6"></div>
+      </div>
+      <!-- Email Actions -->
+      <div id="enquiry-content-actions" class="hidden">
+        <h3 class="font-bold mb-2">📧 Original Email</h3>
+        <div id="modalEnquiryMailContent" class="bg-gray-50 border rounded p-4 text-sm font-mono whitespace-pre-line" style="max-height:300px;overflow:auto;">hello</div>
+      </div>
+    </div>
   </div>
 </div>
     <script>
@@ -683,4 +854,273 @@ const order = {
         }
     };
 </script>
+
+<script>
+function switchEnquiryTab(tabId) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('#enquiry-tab-content > div');
+    tabContents.forEach(content => content.classList.add('hidden'));
+
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => button.classList.remove('border-black', 'text-black'));
+
+    // Show the selected tab content
+    const selectedContent = document.getElementById(`enquiry-content-${tabId}`);
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+
+    // Add active class to the selected tab button
+    const selectedButton = document.getElementById(`enquiry-tab-${tabId}`);
+    if (selectedButton) {
+        selectedButton.classList.add('border-black', 'text-black');
+    }
+}
+
+document.querySelectorAll('.customer-enquiry-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Modal Title
+        document.getElementById('enquiry-modal-title').textContent = this.dataset.subject || 'Customer Enquiry Details';
+        // Status
+        document.getElementById('modalEnquiryStatus').textContent = (this.dataset.status || '').toUpperCase();
+        // Inquirer Name
+        document.getElementById('modalEnquirySender').textContent = this.dataset.sender || '';
+        // Email (if available)
+        document.getElementById('modalEnquiryEmail').textContent = this.dataset.email || '';
+        // Company (extract from subject if possible)
+        document.getElementById('modalEnquiryCriticality').textContent = this.dataset.criticality || 'Medium';
+        // Color code criticality
+        const crit = this.dataset.criticality?.toLowerCase() || 'medium';
+        const critEl = document.getElementById('modalEnquiryCriticality');
+        critEl.className = 'inline-block px-2 py-0.5 rounded-full text-xs ' +
+            (crit === 'urgent' ? 'bg-red-100 text-red-700' :
+            crit === 'high' ? 'bg-orange-100 text-orange-700' :
+            crit === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-green-100 text-green-700');
+        document.getElementById('modalEnquiryStatusDetail').textContent = this.dataset.status || '';
+        document.getElementById('modalEnquiryAssigned').textContent = this.dataset.assigned || 'Unassigned';
+        document.getElementById('modalEnquiryCreated').textContent = this.dataset.created || '';
+        document.getElementById('modalEnquiryRawJson').textContent = this.dataset.rawjson || '';
+        let rawJson = this.dataset.rawjson || '';
+        let prettyJson = '';
+        try {
+            prettyJson = rawJson ? JSON.stringify(JSON.parse(rawJson), null, 2) : '';
+        } catch (err) {
+            prettyJson = 'Invalid JSON';
+        }
+        document.getElementById('modalEnquiryRawJsonBlock').textContent = prettyJson;
+        document.getElementById('modalEnquiryRawJsonBlock').classList.add('hidden');
+        document.getElementById('modalEnquiryRawJsonBlock').textContent = prettyJson;
+        document.getElementById('modalEnquiryRawJsonBlock').classList.add('hidden');
+        document.getElementById('toggleRawJsonBtn').textContent = 'Show Raw Postmark JSON';
+        document.getElementById('toggleRawJsonBtn').onclick = function() {
+      const block = document.getElementById('modalEnquiryRawJsonBlock');
+      if (block.classList.contains('hidden')) {
+          block.classList.remove('hidden');
+          this.textContent = 'Hide Raw Postmark JSON';
+      } else {
+          block.classList.add('hidden');
+          this.textContent = 'Show Raw Postmark JSON';
+      }
+  };
+        let company = '';
+        const subj = this.dataset.subject || '';
+        const match = subj.match(/- (.+)$/);
+        if (match) company = match[1];
+        document.getElementById('modalEnquiryCompany').textContent = company;
+        // Source (static for now)
+        document.getElementById('modalEnquirySource').textContent = 'email';
+        // Response Time (static or dynamic)
+        document.getElementById('modalEnquiryResponseTime').textContent = '2 hours';
+        // Tags
+        const tagsDiv = document.getElementById('modalEnquiryTags');
+        tagsDiv.innerHTML = '';
+        if (this.dataset.tags) {
+            this.dataset.tags.split(',').forEach(tag => {
+                if (tag.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'bg-gray-100 px-2 py-1 text-xs rounded-full';
+                    span.textContent = tag.trim();
+                    tagsDiv.appendChild(span);
+                }
+            });
+        }
+        // Metrics
+        document.getElementById('modalEnquiryProcessingTime').textContent = '2.5 hours';
+        document.getElementById('modalEnquiryPriority').textContent = 'high';
+        // Inquiry Details
+        document.getElementById('modalEnquiryCategory').textContent = this.dataset.category || '';
+        document.getElementById('modalEnquirySummary').textContent = this.dataset.summary || '';
+        // Estimated Value (if present)
+        document.getElementById('modalEnquiryEstimatedValue').textContent = this.dataset.estimatedValue ? '$' + this.dataset.estimatedValue : '';
+        // Details tab
+        document.getElementById('modalEnquiryDetails').textContent = this.dataset.summary || '';
+        // Timeline tab (dummy for now)
+        document.getElementById('modalEnquiryTimeline').innerHTML = `
+            <div class="flex items-start justify-between bg-white rounded-lg p-4 shadow-sm">
+                <div>
+                    <div class="font-bold text-lg text-gray-900">Enquiry Received</div>
+                    <div class="text-gray-500 text-xs mb-1">Just now</div>
+                    <div class="text-gray-700 text-sm">This enquiry was received and is being processed.</div>
+                </div>
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold self-center">open</span>
+            </div>
+        `;
+        // Email tab
+        let msg = this.dataset.message || '';
+        msg = msg.replace(/\n/g, '<br>');
+        msg = msg.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<span class="text-blue-700 font-semibold">$1</span>');
+        document.getElementById('modalEnquiryMailContent').innerHTML = msg;
+        document.getElementById('customerEnquiryModal').classList.remove('hidden');
+        switchEnquiryTab('overview');
+    });
+});
+
+document.getElementById('toggleRawJsonBtn').onclick = function() {
+    const block = document.getElementById('modalEnquiryRawJsonBlock');
+    if (block.classList.contains('hidden')) {
+        block.classList.remove('hidden');
+        this.textContent = 'Hide Raw Postmark JSON';
+    } else {
+        block.classList.add('hidden');
+        this.textContent = 'Show Raw Postmark JSON';
+    }
+};
+document.getElementById('closeCustomerEnquiryModal').onclick = function() {
+    document.getElementById('customerEnquiryModal').classList.add('hidden');
+};
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.getElementById('customerEnquiryModal').classList.add('hidden');
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Helper to safely set textContent
+  const safeSet = (id, val = '') => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  document.querySelectorAll('.customer-enquiry-card').forEach(card => {
+    card.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      safeSet('enquiry-modal-title', this.dataset.subject || 'Customer Enquiry');
+      safeSet('modalEnquiryStatus', (this.dataset.status || '').toUpperCase());
+      safeSet('modalEnquirySender', this.dataset.sender || '');
+      safeSet('modalEnquiryEmail', this.dataset.email || '');
+      safeSet('modalEnquiryStatusDetail', this.dataset.status || '');
+      safeSet('modalEnquiryAssigned', this.dataset.assigned || 'Unassigned');
+      safeSet('modalEnquiryCreated', this.dataset.created || '');
+      safeSet('modalEnquiryCategory', this.dataset.category || '');
+      safeSet('modalEnquirySummary', this.dataset.summary || '');
+      safeSet('modalEnquiryDetails', this.dataset.summary || '');
+      safeSet('modalEnquiryEstimatedValue', this.dataset.estimatedValue ? '$' + this.dataset.estimatedValue : '');
+      safeSet('modalEnquiryMailContent', this.dataset.message || '');
+
+      // Criticality with class coloring
+      const crit = (this.dataset.criticality || 'Medium').toLowerCase();
+      const critEl = document.getElementById('modalEnquiryCriticality');
+      if (critEl) {
+        critEl.textContent = this.dataset.criticality;
+        critEl.className = 'inline-block px-2 py-0.5 rounded-full text-xs ' +
+          (crit === 'urgent' ? 'bg-red-100 text-red-700' :
+          crit === 'high' ? 'bg-orange-100 text-orange-700' :
+          crit === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+          'bg-green-100 text-green-700');
+      }
+
+      // Company (from subject)
+      const match = (this.dataset.subject || '').match(/- (.+)$/);
+      safeSet('modalEnquiryCompany', match ? match[1] : '');
+
+      // Static values
+      safeSet('modalEnquirySource', 'email');
+      safeSet('modalEnquiryResponseTime', '2 hours');
+      safeSet('modalEnquiryProcessingTime', '2.5 hours');
+      safeSet('modalEnquiryPriority', this.dataset.criticality || 'Medium');
+
+      // Tags rendering
+      const tagsDiv = document.getElementById('modalEnquiryTags');
+      if (tagsDiv) {
+        tagsDiv.innerHTML = '';
+        if (this.dataset.tags) {
+          this.dataset.tags.split(',').forEach(tag => {
+            if (tag.trim()) {
+              const span = document.createElement('span');
+              span.className = 'bg-gray-100 px-2 py-1 text-xs rounded-full';
+              span.textContent = tag.trim();
+              tagsDiv.appendChild(span);
+            }
+          });
+        }
+      }
+
+      // Raw JSON
+      let rawJson = this.dataset.rawjson || '';
+      let prettyJson = '';
+      try {
+        prettyJson = rawJson ? JSON.stringify(JSON.parse(rawJson), null, 2) : '';
+      } catch {
+        prettyJson = 'Invalid JSON';
+      }
+      const rawBlock = document.getElementById('modalEnquiryRawJsonBlock');
+      if (rawBlock) {
+        rawBlock.textContent = prettyJson;
+        rawBlock.classList.add('hidden');
+      }
+
+      // Toggle button setup
+      const toggleBtn = document.getElementById('toggleRawJsonBtn');
+      if (toggleBtn) {
+        toggleBtn.textContent = 'Show Raw Postmark JSON';
+        toggleBtn.onclick = function () {
+          if (rawBlock.classList.contains('hidden')) {
+            rawBlock.classList.remove('hidden');
+            this.textContent = 'Hide Raw Postmark JSON';
+          } else {
+            rawBlock.classList.add('hidden');
+            this.textContent = 'Show Raw Postmark JSON';
+          }
+        };
+      }
+
+      // Timeline dummy block
+      const timeline = document.getElementById('modalEnquiryTimeline');
+      if (timeline) {
+        timeline.innerHTML = `
+          <div class="flex items-start justify-between bg-white rounded-lg p-4 shadow-sm">
+            <div>
+              <div class="font-bold text-lg text-gray-900">Enquiry Received</div>
+              <div class="text-gray-500 text-xs mb-1">Just now</div>
+              <div class="text-gray-700 text-sm">This enquiry was received and is being processed.</div>
+            </div>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold self-center">${this.dataset.status}</span>
+          </div>
+        `;
+      }
+
+      // Open modal
+      document.getElementById('customerEnquiryModal')?.classList.remove('hidden');
+      switchEnquiryTab('overview');
+    });
+  });
+
+  // Close modal actions
+  document.getElementById('closeCustomerEnquiryModal')?.addEventListener('click', () => {
+    document.getElementById('customerEnquiryModal')?.classList.add('hidden');
+  });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('customerEnquiryModal')?.classList.add('hidden');
+    }
+  });
+});
+</script>
+
 {% endblock %}

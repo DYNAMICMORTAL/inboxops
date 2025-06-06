@@ -95,7 +95,7 @@ Inbox - InboxOps
                         {% elif email.type == "APPROVAL" %}
                             <span class="badge badge-warning">Approval</span>
                         {% elif email.type == "SUPPORT_REQUEST" %}
-                            <span class="badge badge-warning">Customer Support</span>
+                            <span class="badge" style="background-color: #6a1b9a; color: #ffffff;">Customer Support</span>
                         {% else %}
                             <span class="badge badge-danger">Spam</span>
                         {% endif %}
@@ -105,9 +105,11 @@ Inbox - InboxOps
                     <td>{{ email.from_email }}</td>
                     <td>
                         {% if email.summary %}
-                            <span class="badge badge-success">{{ email.summary }}</span>
+                            <span class="badge badge-success" style="padding-left: 20px;
+    padding-top: 7px;">{{ email.summary }}</span>
                         {% else %}
-                            <span class="badge badge-warning">Processing...</span>
+                            <span class="badge badge-warning" style="padding-left: 20px;
+    padding-top: 7px;">Processing...</span>
                         {% endif %}
                     </td>
                     <td>
