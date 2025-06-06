@@ -113,3 +113,44 @@ def create_approval_from_email(email, db: Session):
     db.commit()
     db.refresh(new_approval)
     return new_approval
+
+from .ai import generate_summary
+
+import asyncio
+
+def create_approval_from_email(email, db: Session):
+    """
+    Create an Approval object from an email and save it to the database.
+    """
+    # Extract approval details from the email body
+    approval_details = extract_approval_details(email.text_body)
+
+    # Generate summary using AI (synchronously for now)
+    summary = ""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If already in an event loop (e.g., FastAPI), use create_task
+            summary = ""
+            async def get_summary():
+                return await generate_summary(approval_details["request_text"])
+            task = loop.create_task(get_summary())
+            # You may want to await this in your async context
+        else:
+            summary = loop.run_until_complete(generate_summary(approval_details["request_text"]))
+    except Exception as e:
+        summary = ""
+
+    new_approval = Approval(
+        sender=email.from_email,
+        approval_type=approval_details["approval_type"],
+        request_text=approval_details["request_text"],
+        start_date=approval_details["start_date"],
+        end_date=approval_details["end_date"],
+        created_at=email.received_at,
+        summary=summary,
+    )
+    db.add(new_approval)
+    db.commit()
+    db.refresh(new_approval)
+    return new_approval

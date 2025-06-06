@@ -126,16 +126,22 @@ async def inbound_email(
         return {"status": "⚠️ No order items found"}
     elif is_approval_email(email_data.subject, email_data.text_body):
         details = extract_approval_details(email_data.text_body)
+        summary = await generate_summary(details["request_text"])
         approval = Approval(
             sender=email_data.from_email,
             approval_type=details["approval_type"],
             request_text=details["request_text"],
-            status="Pending"
+            status="Pending",
+            start_date=details.get("start_date"),
+            end_date=details.get("end_date"),
+            summary=summary
         )
         db.add(approval)
         db.commit()
         db.refresh(approval)
         print(f"[APPROVAL] Saved: {approval.approval_type} - {approval.status}")
+        # --- NEW: Update the summary in the emails table as well ---
+        crud.update_email_summary(db, db_email.id, summary, status="Processed")
         return {"status": "approval saved", "approval_type": approval.approval_type}
         
 

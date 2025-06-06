@@ -104,12 +104,26 @@ Inbox - InboxOps
                     <td>{{ email.subject }}</td>
                     <td>{{ email.from_email }}</td>
                     <td>
+                        {% set related_summary = None %}
+                        {% if email.type == "ORDER" and orders %}
+                            {% for order in orders %}
+                                {% if order.key == email.key and order.summary %}
+                                    {% set related_summary = order.summary %}
+                                {% endif %}
+                            {% endfor %}
+                        {% elif email.type == "APPROVAL" and approvals %}
+                            {% for approval in approvals %}
+                                {% if approval.sender == email.from_email and approval.summary %}
+                                    {% set related_summary = approval.summary %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                         {% if email.summary %}
-                            <span class="badge badge-success" style="padding-left: 20px;
-    padding-top: 7px;">{{ email.summary }}</span>
+                            <span class="badge badge-success" style="padding-left: 20px; padding-top: 7px;">{{ email.summary }}</span>
+                        {% elif related_summary %}
+                            <span class="badge badge-success" style="padding-left: 20px; padding-top: 7px;">{{ related_summary }}</span>
                         {% else %}
-                            <span class="badge badge-warning" style="padding-left: 20px;
-    padding-top: 7px;">Processing...</span>
+                            <span class="badge badge-warning" style="padding-left: 20px; padding-top: 7px;">Processing...</span>
                         {% endif %}
                     </td>
                     <td>
