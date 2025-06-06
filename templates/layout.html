@@ -49,6 +49,24 @@
             <input id="ai-chat-input" type="text" autocomplete="off" class="flex-1 outline-none border-none bg-transparent text-lg placeholder-gray-500" placeholder="Ask ..." />
             <button type="submit" class="ml-3 px-6 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded-lg font-semibold text-lg transition">Send</button>
           </div>
+          <!-- Recommended prompts below your chat input -->
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button type="button" class="bg-gray-200 hover:bg-blue-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+              onclick="setAIChatPrompt('What are the type of Mails?')">What are the type of Mails?</button>
+            <button type="button" class="bg-gray-200 hover:bg-blue-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+              onclick="setAIChatPrompt('What is the last Approval Mail about?')">What is the last Approval Mail about?</button>
+            <button type="button" class="bg-gray-200 hover:bg-blue-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+              onclick="setAIChatPrompt('Track me ODR-202506050007')">Track me ODR-202606030008</button>
+          </div>
+          <script>
+            function setAIChatPrompt(text) {
+              const input = document.getElementById('ai-chat-input');
+              if (input) {
+                input.value = text;
+                input.focus();
+              }
+            }
+          </script>
         </form>
       </div>
     </div>
