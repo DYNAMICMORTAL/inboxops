@@ -45,6 +45,8 @@ class Order(Base):
     total_value = Column(Float, nullable=True)
     order_items = Column(JSON, nullable=True)  # <-- add this line if you want
     tags = Column(JSON, nullable=True)         # <-- add this line if you want
+    received = Column(Integer, default=0)   # <-- Add this line (use Integer for SQLite Boolean)
+    processed = Column(Integer, default=0)  # <-- Add this line
 
 class Approval(Base):
     __tablename__ = "approvals"

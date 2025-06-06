@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
+<head>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
 <div class="p-6 space-y-6">
   <!-- Header -->
   <div class="flex items-center justify-between">
@@ -25,7 +28,7 @@
     </div>
     <div class="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded shadow">
       <h4 class="text-sm font-medium">Avg Response Time</h4>
-      <p class="text-2xl font-bold">{{ avg_response_time }}h</p>
+      <p class="text-2xl font-bold">{{ avg_response_time }}</p>
     </div>
     <div class="p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded shadow">
       <h4 class="text-sm font-medium">Customer Satisfaction</h4>
@@ -45,110 +48,110 @@
   <div class="flex-1">
     <div class="bg-white rounded-xl shadow p-4 space-y-6">
       {% for ticket in tickets %}
-      <div class="rounded-xl border border-gray-200 p-4 mb-4{% if loop.first %} mt-0{% endif %}">
-        <div class="flex items-center gap-2 mb-2">
-          {% if ticket.criticality %}
-            <span class="px-2 py-1 rounded-full text-xs font-semibold
-              {% if ticket.criticality|lower == 'urgent' or ticket.criticality|lower == 'high' %}
-                bg-orange-100 text-orange-700
-              {% elif ticket.criticality|lower == 'medium' %}
-                bg-yellow-100 text-yellow-700
-              {% else %}
-                bg-gray-100 text-gray-700
-              {% endif %}
-            ">
-              {{ ticket.criticality|lower }}
-            </span>
-          {% endif %}
-          <span class="font-semibold text-lg">{{ ticket.subject }}</span>
-          {% if ticket.key %}
-            <span class="ml-2 px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-mono">{{ ticket.key }}</span>
-          {% endif %}
-          {% if ticket.status %}
-            <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold
-              {% if ticket.status == 'open' %}
-                bg-red-100 text-red-700
-              {% elif ticket.status == 'in_progress' %}
-                bg-blue-100 text-blue-700
-              {% elif ticket.status == 'resolved' %}
-                bg-green-100 text-green-700
-              {% else %}
-                bg-gray-100 text-gray-700
-              {% endif %}
-            ">
-              {{ ticket.status.replace('_', ' ') }}
-            </span>
-          {% endif %}
-          <span class="ml-auto text-xs text-gray-500 font-semibold">
-            {{ ticket.created_at }}
-          </span>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <span class="rounded-full bg-gray-100 w-7 h-7 flex items-center justify-center text-gray-400 text-lg">
-            <i class="fas fa-user"></i>
-          </span>
-          <span class="font-medium text-gray-800">{{ ticket.sender }}</span>
-          <span class="text-gray-400">•</span>
-          <span class="text-gray-500 text-sm">{{ ticket.category }}</span>
-        </div>
-        <!-- AI Insights -->
-        {% if ticket.summary %}
-        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-blue-600"><i class="fas fa-bolt"></i></span>
-            <span class="font-semibold text-blue-900 text-sm">AI Insights</span>
-            {% if ticket.sentiment %}
-              <span class="ml-2 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs">{{ ticket.sentiment }}</span>
-            {% endif %}
-            {% if ticket.urgency %}
-              <span class="ml-2 px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-xs">{{ ticket.urgency }}</span>
-            {% endif %}
-          </div>
-          <div class="text-gray-800 text-sm">{{ ticket.summary }}</div>
-          {% if ticket.tags %}
-            <div class="mt-2 flex flex-wrap gap-2">
-              {% for tag in ticket.tags %}
-                <span class="px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs">{{ tag }}</span>
-              {% endfor %}
-              {% if ticket.tags|length > 3 %}
-                <span class="px-2 py-1 rounded bg-gray-200 text-gray-500 text-xs">+{{ ticket.tags|length - 3 }}</span>
-              {% endif %}
-            </div>
-          {% endif %}
-        </div>
+<div class="rounded-xl border border-gray-200 p-4 mb-4{% if loop.first %} mt-0{% endif %}">
+  <div class="flex items-center gap-2 mb-2">
+    {% if ticket.criticality %}
+      <span class="px-2 py-1 rounded-full text-xs font-semibold
+        {% if ticket.criticality|lower == 'urgent' or ticket.criticality|lower == 'high' %}
+          bg-orange-100 text-orange-700
+        {% elif ticket.criticality|lower == 'medium' %}
+          bg-yellow-100 text-yellow-700
+        {% else %}
+          bg-gray-100 text-gray-700
         {% endif %}
-        <!-- Postmark Email Data -->
-        <div class="bg-orange-50 border border-orange-100 rounded-lg p-3 mb-2">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-orange-600"><i class="fas fa-envelope"></i></span>
-            <span class="font-semibold text-orange-900 text-sm">Postmark Email Data</span>
-            {% if ticket.key %}
-              <span class="ml-2 px-2 py-1 rounded-full bg-orange-200 text-orange-800 text-xs font-mono">{{ ticket.key[:8] }}...</span>
-            {% endif %}
-          </div>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="font-medium">From:</span>
-            <span>{{ ticket.sender }}</span>
-            <span class="ml-4 font-medium">To:</span>
-            <span>support@...</span>
-          </div>
-          <div class="flex items-center gap-2 text-sm mt-1">
-            <span class="font-medium">Attachments:</span>
-            <span>2</span>
-            <span class="ml-4 font-medium">Tag:</span>
-            <span>support</span>
-          </div>
-        </div>
-        <div class="flex gap-2 mt-3">
-          <a href="/tickets/{{ ticket.id }}" class="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 flex items-center gap-2 hover:bg-gray-200">
-            <i class="far fa-eye"></i> View
-          </a>
-          <a href="/tickets/{{ ticket.id }}/reply" class="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 flex items-center gap-2 hover:bg-gray-200">
-            <i class="fas fa-reply"></i> Reply
-          </a>
-        </div>
+      ">
+        {{ ticket.criticality|lower }}
+      </span>
+    {% endif %}
+    <span class="font-semibold text-lg">{{ ticket.subject }}</span>
+    {% if ticket.key %}
+      <span class="ml-2 px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-black font-mono">{{ ticket.key }}</span>
+    {% endif %}
+    {% if ticket.status %}
+      <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold
+        {% if ticket.status == 'open' %}
+          bg-red-100 text-red-700
+        {% elif ticket.status == 'in_progress' %}
+          bg-blue-100 text-blue-700
+        {% elif ticket.status == 'resolved' %}
+          bg-green-100 text-green-700
+        {% else %}
+          bg-gray-100 text-gray-700
+        {% endif %}
+      ">
+        {{ ticket.status.replace('_', ' ') }}
+      </span>
+    {% endif %}
+    <span class="ml-auto text-xs text-gray-500 font-semibold">
+      {{ ticket.created_at }}
+    </span>
+  </div>
+  <div class="flex items-center gap-2 mb-2">
+    <span class="rounded-full bg-gray-100 w-7 h-7 flex items-center justify-center text-gray-400 text-lg">
+      <i class="fas fa-user"></i>
+    </span>
+    <span class="font-medium text-gray-800">{{ ticket.sender }}</span>
+    <span class="text-gray-400">•</span>
+    <span class="text-gray-500 text-sm">{{ ticket.category }}</span>
+  </div>
+  {% if ticket.summary %}
+  <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-blue-600"><i class="fas fa-bolt"></i></span>
+      <span class="font-semibold text-blue-900 text-sm">AI Insights</span>
+      {% if ticket.sentiment %}
+        <span class="ml-2 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs">{{ ticket.sentiment }}</span>
+      {% endif %}
+      {% if ticket.urgency %}
+        <span class="ml-2 px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-xs">{{ ticket.urgency }}</span>
+      {% endif %}
+    </div>
+    <div class="text-gray-800 text-sm">{{ ticket.summary }}</div>
+    {% if ticket.tags %}
+      <div class="mt-2 flex flex-wrap gap-2">
+        {% for tag in ticket.tags %}
+          <span class="px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs">{{ tag }}</span>
+        {% endfor %}
+        {% if ticket.tags|length > 3 %}
+          <span class="px-2 py-1 rounded bg-gray-200 text-gray-500 text-xs">+{{ ticket.tags|length - 3 }}</span>
+        {% endif %}
       </div>
-      {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="bg-orange-50 border border-orange-100 rounded-lg p-3 mb-2">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-orange-600"><i class="fas fa-envelope"></i></span>
+      <span class="font-semibold text-orange-900 text-sm">Postmark Email Data</span>
+      {% if ticket.key %}
+        <span class="ml-2 px-2 py-1 rounded-full bg-orange-200 text-orange-800 text-xs font-mono">{{ ticket.key }}...</span>
+      {% endif %}
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      <span class="font-medium">From:</span>
+      <span>{{ ticket.sender }}</span>
+      <span class="ml-4 font-medium">To:</span>
+      <span>support@...</span>
+    </div>
+    <div class="flex items-center gap-2 text-sm mt-1">
+      <span class="font-medium">Attachments:</span>
+      <span>{{ ticket.attachments|length if ticket.attachments else 0 }}</span>
+      <span class="ml-4 font-medium">Tag:</span>
+      <span>support</span>
+    </div>
+  </div>
+  <div class="flex gap-2 mt-3">
+    <button 
+      class="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 flex items-center gap-2 hover:bg-gray-200 view-ticket-btn"
+      data-ticket='{{ ticket | tojson | safe }}'>
+      <i class="far fa-eye"></i> View
+    </button>
+    <!-- <a href="/tickets/{{ ticket.id }}/reply" class="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 flex items-center gap-2 hover:bg-gray-200">
+      <i class="fas fa-reply"></i> Reply
+    </a> -->
+  </div>
+</div>
+{% endfor %}
     </div>
   </div>
   <!-- Ticket Details (Right) -->
@@ -205,39 +208,42 @@
             </span>
             <div>
               <div class="font-semibold text-gray-800">{{ ticket.sender }}</div>
-              <div class="text-gray-500 text-sm">sarah.johnson@techstartup.com</div>
+                <div class="text-gray-500 text-sm">{{ ticket.emailaddress if ticket.emailaddress else '' }}</div>
             </div>
           </div>
           <div class="mt-2 text-sm">
-            <div><span class="font-medium text-gray-700">Company:</span> TechStartup Inc</div>
-            <div><span class="font-medium text-gray-700">Tier:</span> Professional</div>
-            <div><span class="font-medium text-gray-700">Location:</span> San Francisco, CA</div>
-            <div><span class="font-medium text-gray-700">Timezone:</span> PST</div>
+            <div><span class="font-medium text-gray-700">Company:</span> {{ ticket.senderCompany if ticket.senderCompany else 'NA' }}</div>
           </div>
         </div>
-        <div class="mt-4">
-          <div class="font-semibold text-gray-700 mb-1">Timeline</div>
-          <div class="text-sm text-gray-600">
-            <div>Created: <span class="font-mono">{{ ticket.created_at }}</span></div>
-            <div>Updated: <span class="font-mono">{{ ticket.updated_at or ticket.created_at }}</span></div>
-          </div>
+        <div class="mt-4 py-3">
+          <div class="font-bold text-gray-700 mb-1">Timeline of Ticket from Mail Content</div>
+            <div class="text-sm text-gray-500 flex justify-between py-1">
+            <div>Created:</div>
+            <span class="font-mono font-black">{{ ticket.created_at }}</span>
+            </div>
+            <div class="text-sm text-gray-600 flex justify-between">
+            <div>Updated:</div>
+            <span class="font-mono font-black">{{ ticket.updated_at or ticket.created_at }}</span>
+            </div>
         </div>
         <div class="mt-4">
-          <div class="font-semibold text-gray-700 mb-1">Attachments</div>
-          <div class="space-y-2">
+          <div class="font-bold text-gray-700 mb-1">Attachments</div>
+            {% if ticket.attachments and ticket.attachments|length > 0 %}
+            <div class="space-y-2">
+            {% for attachment in ticket.attachments %}
             <div class="flex items-center gap-2 bg-gray-50 rounded px-3 py-2">
               <i class="fas fa-file-alt text-gray-400"></i>
-              <span class="flex-1">error_logs.txt</span>
-              <span class="text-xs text-gray-400">15.06 KB</span>
-              <a href="#" class="text-gray-500 hover:text-blue-600"><i class="fas fa-download"></i></a>
+              <span class="flex-1">{{ attachment.name }}</span>
+              <span class="text-xs text-gray-400">{{ attachment.size }}</span>
+              <a href="{{ attachment.url }}" class="text-gray-500 hover:text-blue-600" download>
+              <i class="fas fa-download"></i>
+              </a>
             </div>
-            <div class="flex items-center gap-2 bg-gray-50 rounded px-3 py-2">
-              <i class="fas fa-file-code text-gray-400"></i>
-              <span class="flex-1">webhook_config.json</span>
-              <span class="text-xs text-gray-400">2.29 KB</span>
-              <a href="#" class="text-gray-500 hover:text-blue-600"><i class="fas fa-download"></i></a>
+            {% endfor %}
             </div>
-          </div>
+            {% else %}
+            <div class="text-gray-500 text-sm font-bold">No Attachments are present.</div>
+            {% endif %}
         </div>
       </div>
       {% else %}
@@ -246,4 +252,31 @@
     </div>
   </div>
 </div>
+<script>
+  document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const ticket = JSON.parse(this.dataset.ticket);
+
+    document.getElementById('ticket-detail-subject').textContent = ticket.subject || '';
+    document.getElementById('ticket-detail-key').textContent = ticket.key || '';
+    document.getElementById('ticket-detail-status').textContent = ticket.status || '';
+    document.getElementById('ticket-detail-sender').textContent = ticket.sender || '';
+    document.getElementById('ticket-detail-category').textContent = ticket.category || '';
+    document.getElementById('ticket-detail-summary').textContent = ticket.summary || '';
+    document.getElementById('ticket-detail-created').textContent = ticket.created_at || '';
+
+    // Tags
+    const tagsDiv = document.getElementById('ticket-detail-tags');
+    tagsDiv.innerHTML = '';
+    if (ticket.tags && ticket.tags.length) {
+      ticket.tags.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs mr-1';
+        span.textContent = tag;
+        tagsDiv.appendChild(span);
+      });
+    }
+  });
+});
+</script>
 {% endblock %}

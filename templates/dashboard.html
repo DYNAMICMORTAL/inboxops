@@ -135,7 +135,12 @@ Dashboard - InboxOps
     <h2 class="text-xl font-semibold mb-3">Orders</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for order in orders %}
-        <a href="#" class="order-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105" data-order-id="{{ order.id }}">
+        <a href="#"
+   class="order-card border rounded-lg p-4 shadow-sm bg-white transform transition-transform duration-200 hover:scale-105"
+   data-order-id="{{ order.id }}"
+   data-received="{{ order.received }}"
+   data-processed="{{ order.processed }}"
+   data-summary="{% if order.summary %}1{% else %}0{% endif %}">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -213,72 +218,15 @@ Dashboard - InboxOps
 </section>
 
 <div id="order-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[89vh] h-auto p-6" style="height:auto;max-height:89vh;">
-        <div class="flex justify-between items-center mb-4">
-            <h2 id="order-title" class="text-2xl font-bold text-gray-800">Order Details</h2>
-            {% for order in orders %}
-            <span class="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 font-black rounded">{{ order.key }}</span>
-            <!-- {% endfor %} -->
-            <button id="close-modal" class="text-gray-500 hover:text-gray-800 transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <div id="order-content" class="space-y-6 text-sm text-gray-700 overflow-y-auto" style="max-height:70vh;">
-  <div class="flex justify-between items-center">
-    <span class="text-lg font-semibold text-gray-800">Order #<span id="order-id">TC-XXXX-001</span></span>
-    <div class="flex flex-col items-end text-xs text-right">
-      <span class="inline-block bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">CONFIRMED</span>
-      <span class="mt-1 text-gray-500">Mon, Jan 15, 2024, 08:00 PM</span>
-      <span class="text-gray-400 text-xs">Updated Mon, Jan 15, 2024, 08:45 PM</span>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[89vh] h-auto p-6 relative" style="height:auto;max-height:89vh;">
+    <div class="flex justify-between items-center mb-4">
+      <span id="order-title" class="text-xl font-bold"></span>
+      <button id="close-modal" class="text-gray-500 hover:text-red-600 text-2xl font-bold">&times;</button>
+    </div>
+    <div id="order-content" class="space-y-6 text-sm text-gray-700 overflow-y-auto" style="max-height:70vh;">
+      <!-- Modal content will be injected here -->
     </div>
   </div>
-
-  <div class="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Customer Information -->
-    <div>
-      <h3 class="font-semibold text-gray-800 text-base mb-2">👤 Customer Information</h3>
-      <p><strong>Name:</strong> <span id="customer-name" class="text-gray-800"></span></p>
-      <p><strong>Company:</strong> TechCorp Solutions</p>
-      <p><strong>Email:</strong> <span id="customer-email" class="text-gray-800"></span></p>
-      <p><strong>Customer Type:</strong> <span class="bg-gray-200 text-xs px-2 py-0.5 rounded-full">existing</span></p>
-    </div>
-
-    <!-- Tags & Classification -->
-    <div>
-      <h3 class="font-semibold text-gray-800 text-base mb-2">🏷️ Tags & Classification</h3>
-      <div class="flex flex-wrap gap-2">
-        <span class="bg-gray-100 px-2 py-1 text-xs rounded-full">enterprise</span>
-        <span class="bg-gray-100 px-2 py-1 text-xs rounded-full">high-value</span>
-        <span class="bg-gray-100 px-2 py-1 text-xs rounded-full">existing-customer</span>
-        <span class="bg-gray-100 px-2 py-1 text-xs rounded-full">express-shipping</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Order Summary -->
-  <div class="border-t pt-4">
-    <h3 class="font-semibold text-gray-800 text-base mb-2">💲 Order Summary</h3>
-    <p class="text-xl text-gray-900 font-bold mb-2">USD <span id="order-value"></span></p>
-    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">3 items</span>
-    <div class="mt-3 bg-blue-50 p-3 rounded-md">
-      <h4 class="font-medium text-blue-800 mb-1">AI Summary</h4>
-      <p id="order-summary" class="text-sm text-blue-900"></p>
-    </div>
-  </div>
-
-  <!-- Metrics -->
-  <div class="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <h3 class="font-semibold text-gray-800 text-base mb-2">📈 Metrics</h3>
-      <p><strong>Processing Time:</strong> 2.5 hours</p>
-      <p><strong>Priority:</strong> low</p>
-    </div>
-  </div>
-</div>
-
-    </div>
 </div>
 <section class="approvalCard">
     <h2 class="font-semibold mb-3">HR Workflows</h2>
@@ -590,9 +538,9 @@ Dashboard - InboxOps
 
     // Function to open the modal
     const openModal = (order) => {
-    modalTitle.textContent = `Order #${order.id}`;
+        modalTitle.textContent = `Order #${order.id}`;
 
-    modalContent.innerHTML = `
+        modalContent.innerHTML = `
     <div class="w-[900px] bg-white rounded-xl shadow-2xl overflow-hidden">
       <div class="flex justify-between items-center px-6 py-4 border-b">
         <div>
@@ -661,7 +609,8 @@ Dashboard - InboxOps
             </div>
           </div>
           <!-- Order Summary -->
-          <div class="bg-white rounded-xl border p-6">
+          <div style="display: flex;align-items: center; flex-direction: row;justify-content: space-between;" class="orderSummaryProgress">
+            <div style="width: 60%" class="bg-white rounded-xl border p-6">
             <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
               <span class="inline-block">$</span> Order Summary
             </h3>
@@ -674,7 +623,20 @@ Dashboard - InboxOps
               <p class="text-sm text-blue-900">${order.summary}</p>
             </div>
           </div>
+          <div style="width: 30%" class="bg-blue-50 rounded-xl border p-6 mt-6">
+            <h3 class="font-semibold text-blue-700 text-base mb-2 flex items-center gap-2">
+              <span>⚙️</span> Automation Progress
+            </h3>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div id="modalAutomationProgressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-700 mb-4">
+              <span id="modalAutomationSteps">0/3 steps</span>
+              <span id="modalAutomationPercent">0%</span>
+            </div>
+          </div>
         </div>
+      </div>
 
                 <!-- Details -->
         <div id="content-details" class="hidden">
@@ -747,7 +709,7 @@ Dashboard - InboxOps
 
     // Add click event listeners to order cards
     orderCards.forEach((card) => {
-        card.addEventListener('click', (e) => {
+        card.addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default redirection
 
             const orderId = card.dataset.orderId;
@@ -777,6 +739,9 @@ const order = {
     rawJson: card.querySelector('.raw-json')?.textContent.trim() || '',
     priority: 'low',
     customerType: 'existing',
+    received: this.dataset.received === "1" || this.dataset.received === "true",
+    processed: this.dataset.processed === "1" || this.dataset.processed === "true",
+    summary: this.dataset.summary === "1" || this.dataset.summary === "true",
     // items: [
     //     { name: "Premium Enterprise License", quantity: 50, price: 299, total: 14950, category: "Software" },
     //     { name: "Priority Support Package", quantity: 1, price: 500, total: 500, category: "Support" },
@@ -802,7 +767,33 @@ const order = {
     ]
 };
         console.log("Mail content for modal:", order.mailContent);
+        // Now you can safely use order
+    orderCards.forEach((card) => {
+    card.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default redirection
 
+        // ...existing code to extract order data...
+
+        openModal(order);
+
+        // Now update progress bar and steps after modal is rendered
+        const steps = [
+            Boolean(order.received),
+            Boolean(order.processed),
+            Boolean(order.summary)
+        ];
+        const completed = steps.filter(Boolean).length;
+        const percent = Math.round((completed / steps.length) * 100);
+
+        // These elements now exist in the DOM after openModal
+        const progressBar = document.getElementById('modalAutomationProgressBar');
+        const stepsSpan = document.getElementById('modalAutomationSteps');
+        const percentSpan = document.getElementById('modalAutomationPercent');
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (stepsSpan) stepsSpan.textContent = `${completed}/3 steps`;
+        if (percentSpan) percentSpan.textContent = `${percent}%`;
+    });
+});
 
             openModal(order);
         });
@@ -965,7 +956,7 @@ document.querySelectorAll('.customer-enquiry-card').forEach(card => {
                     <div class="text-gray-500 text-xs mb-1">Just now</div>
                     <div class="text-gray-700 text-sm">This enquiry was received and is being processed.</div>
                 </div>
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold self-center">open</span>
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold self-center">${this.dataset.status}</span>
             </div>
         `;
         // Email tab

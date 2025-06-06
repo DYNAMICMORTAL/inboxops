@@ -122,7 +122,6 @@ async def inbound_email(
 
 
 
-        # If no items found, mark as error
         crud.update_email_summary(db, db_email.id, "No order items found.", status="Error")
         return {"status": "⚠️ No order items found"}
     elif is_approval_email(email_data.subject, email_data.text_body):
@@ -140,7 +139,6 @@ async def inbound_email(
         return {"status": "approval saved", "approval_type": approval.approval_type}
         
 
-    # 3. For non-order emails, generate LLM summary
     if email_data.text_body:
         summary = await ai.generate_summary(email_data.text_body)
         crud.update_email_summary(db, db_email.id, summary)
@@ -148,43 +146,6 @@ async def inbound_email(
     return {"message": "📩 Email received and processed"}
 
 
-# # In your FastAPI app
-# from fastapi import APIRouter, Request, Depends
-# from .ai import generate_summary  # or your chat function
-# from .models import Order, Approval, SupportTicket, HRRequest
-# from sqlalchemy.orm import Session
-
-# router = APIRouter()
-
-# @router.post("/ai-chat")
-# async def ai_chat(request: Request, db: Session = Depends(get_db)):
-#     data = await request.json()
-#     user_input = data.get("message", "")
-
-#     # Fetch relevant data (simplified)
-#     orders = db.query(Order).order_by(Order.created_at.desc()).limit(3).all()
-#     approvals = db.query(Approval).order_by(Approval.created_at.desc()).limit(2).all()
-#     tickets = db.query(SupportTicket).order_by(SupportTicket.created_at.desc()).limit(2).all()
-#     hr_requests = db.query(HRRequest).order_by(HRRequest.created_at.desc()).limit(2).all()
-
-#     # Build context
-#     context = f"""
-#     Recent Orders: {[o.summary for o in orders]}
-#     Recent Approvals: {[a.summary for a in approvals]}
-#     Recent Support Tickets: {[t.summary for t in tickets]}
-#     Recent HR Requests: {[h.summary for h in hr_requests]}
-#     """
-
-#     prompt = f"""
-#     You are an enterprise assistant. Here is some context:
-#     {context}
-#     User question: {user_input}
-#     Answer as helpfully as possible.
-#     """
-
-#     # Call Gemini or your LLM
-#     answer = await generate_summary(prompt)
-#     return {"answer": answer}
 from .ai import gemini_chat
 @router.post("/ai-chat")
 async def ai_chat(request: Request, db: Session = Depends(get_db)):
