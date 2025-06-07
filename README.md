@@ -49,4 +49,4 @@ InboxOps includes a native AI chat modal that uses parsed email context to answe
 
 ## 🔗 Live Demo
 
-🌐 [https://inboxops.render.com](https://inboxops.render.com)
+🌐 [https://inboxops.render.com](https://inboxops.onrender.com)
