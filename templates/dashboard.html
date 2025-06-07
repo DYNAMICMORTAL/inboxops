@@ -1,12 +1,9 @@
 {% extends "layout.html" %} 
-
 {% block title %}
 Dashboard - InboxOps
 {% endblock %}
-
 {% block content %}
 <link rel="stylesheet" href="../static/styles.css">
-
 <section style="margin-bottom: 0;" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
     <div class="card bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
     <h3 class="text-lg font-semibold text-blue-600">Total Processed</h3>
@@ -19,33 +16,28 @@ Dashboard - InboxOps
       </div>
     </div>
     </div>
-
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
       <h3 class="text-lg font-semibold text-green-600">Success Rate</h3>
       <p class="text-3xl font-bold text-green-800">{{ success_rate }}%</p>
       <p class="text-sm text-green-500">↑ {{ success_rate_change }}% from last week</p>
       <p class="text-xs text-green-400">Avg. Processing Time: {{ avg_processing_time }}s</p>
     </div>
-
     <div class="card bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-sm">
       <h3 class="text-lg font-semibold text-orange-600">Active Webhooks</h3>
       <p class="text-3xl font-bold text-orange-800">{{ active_webhooks }}</p>
       <p class="text-sm text-orange-500">{{ webhook_endpoints }} endpoints configured</p>
       <p class="text-xs text-orange-400">Avg. Latency: {{ avg_latency }}ms</p>
     </div>
-
     <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
       <h3 class="text-lg font-semibold text-purple-600">Pending Approvals</h3>
       <p class="text-3xl font-bold text-purple-800">{{ approvals|length }}</p>
       <p class="text-sm text-purple-500">Last Approval: {{ approvals[0].created_at.strftime('%b %d, %I:%M %p') if approvals }}</p>
     </div>
-
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
       <h3 class="text-lg font-semibold text-green-600">Orders</h3>
       <p class="text-3xl font-bold text-green-800">{{ orders|length }}</p>
       <p class="text-sm text-green-500">Last Order: {{ orders[0].created_at.strftime('%b %d, %I:%M %p') if orders }}</p>
     </div>
-
     <div class="card bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
       <h3 class="text-lg font-semibold text-purple-600">Classifications</h3>
       <p class="text-3xl font-bold text-purple-800">{{ active_models }}</p>
@@ -57,7 +49,6 @@ Dashboard - InboxOps
       <p class="text-sm text-red-500">↓ {{ error_rate_change }}% from yesterday</p>
       <p class="text-xs text-red-400">Last Error: {{ last_error_time }}</p>
     </div>
-
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm relative">
       <h3 class="text-lg font-semibold text-green-600">DKIM Signature</h3>
       <p class="text-3xl font-bold text-green-800">Valid</p>
@@ -68,7 +59,6 @@ Dashboard - InboxOps
       <button class="text-xs text-blue-500 underline mt-2" onclick="hideDkimInfo()">Close</button>
       </div>
     </div>
-
     <script>
       function showDkimInfo() {
       document.getElementById('dkim-info-popup').classList.remove('hidden');
@@ -78,7 +68,6 @@ Dashboard - InboxOps
       document.getElementById('dkim-info-popup').classList.add('hidden');
       }
     </script>
-
     <div class="card bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm relative">
       <h3 class="text-lg font-semibold text-green-600">SPF Policy</h3>
       <p class="text-3xl font-bold text-green-800">Valid</p>
@@ -94,18 +83,15 @@ Dashboard - InboxOps
         <button class="text-xs text-blue-500 underline mt-2" onclick="hideSpfInfo()">Close</button>
       </div>
     </div>
-
     <script>
       function showSpfInfo() {
         document.getElementById('spf-info-popup').classList.remove('hidden');
       }
-
       function hideSpfInfo() {
         document.getElementById('spf-info-popup').classList.add('hidden');
       }
     </script>
 </section>
-
 <section class="bg-gray-100 shadow-md rounded-lg p-6 mb-6">
     <nav class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <a href="#" id="active-workflows-tab" class="nav-card bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm transition duration-300 hover:bg-blue-100 active:bg-blue-200">
@@ -126,7 +112,6 @@ Dashboard - InboxOps
         </a>
     </nav>
 </section>
-
 <section class="mb-8 orderCard">
     <h2 class="text-xl font-semibold mb-3">Orders</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -207,7 +192,6 @@ Dashboard - InboxOps
         {% endfor %}
     </div>
 </section>
-
 <div id="order-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[89vh] h-auto p-6" style="height:auto;max-height:89vh;">
         <div class="flex justify-between items-center mb-4">
@@ -300,17 +284,14 @@ Dashboard - InboxOps
                 </div>
                 <span class="badge badge-under-review">{{ approval.status }}</span>
             </div>
-        
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Employee</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.sender }}</p>
             </div>
-        
             <div class="mb-4">
                 <p class="text-sm text-gray-500">Request Type</p>
                 <p class="font-semibold text-lg text-gray-800">{{ approval.approval_type }}</p>
             </div>
-        
             <div class="mb-4 p-4 bg-purple-50 rounded-lg shadow-sm">
                 <h3 class="text-sm font-semibold text-purple-600 mb-1">Summary</h3>
                 <p class="text-sm text-gray-700">
@@ -321,7 +302,6 @@ Dashboard - InboxOps
                     {% endif %}
                 </p>
             </div>
-        
             <div class="mb-4 flex justify-between items-center">
                 <div>
                     <p class="text-sm text-gray-500">Start</p>
@@ -336,7 +316,6 @@ Dashboard - InboxOps
                     </p>
                 </div>
             </div>
-        
             <div class="flex items-center justify-between text-sm text-gray-500">
                 <div class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -439,7 +418,6 @@ Dashboard - InboxOps
       {% endfor %}
     </div>
 </section>
-
 <!-- Customer Enquiry Modal -->
 <div id="customerEnquiryModal" style="z-index: 1000;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 hidden">
   <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[89vh] h-auto p-6 relative overflow-y-auto">
@@ -565,17 +543,13 @@ Dashboard - InboxOps
         // JavaScript for Navigation Bar Filtering
         const tabs = document.querySelectorAll('.nav-card'); // Navigation tabs
         const allCards = document.querySelectorAll('.orderCard, .approvalCard, .customerEnquiryCard'); // Select all cards
-    
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
-    
                 // Remove active class from all tabs and add it to the clicked tab
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-    
                 const tabId = tab.id.replace('-tab', ''); // Extract tab identifier
-    
                 // Filter cards based on the selected tab
                 if (tabId === 'active-workflows') {
                     allCards.forEach(card => card.style.display = 'block'); // Show all cards
@@ -612,16 +586,14 @@ Dashboard - InboxOps
         });
     </script>
 <script>
-    const orderCards = document.querySelectorAll('.order-card'); // Select all order cards
+    const orderCards = document.querySelectorAll('.order-card');
     const modal = document.getElementById('order-modal'); // Modal element
     const modalTitle = document.getElementById('order-title'); // Modal title
-    const modalContent = document.getElementById('order-content'); // Modal content
-    const closeModalButton = document.getElementById('close-modal'); // Close button
-
+    const modalContent = document.getElementById('order-content');
+    const closeModalButton = document.getElementById('close-modal');
     // Function to open the modal
     const openModal = (order) => {
     modalTitle.textContent = `Order #${order.id}`;
-
     modalContent.innerHTML = `
     <div class="w-[900px] bg-white rounded-xl shadow-2xl overflow-hidden">
       <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -634,16 +606,13 @@ Dashboard - InboxOps
           <p class="text-sm text-gray-600">${new Date().toLocaleString()}</p>
         </div>
       </div>
-
       <div class="flex border-b">
         <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-6 py-3 font-semibold text-sm text-black border-b-2 border-black">Overview</button>
         <button onclick="switchTab('details')" id="tab-details" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Details</button>
         <button onclick="switchTab('timeline')" id="tab-timeline" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Timeline</button>
         <button onclick="switchTab('actions')" id="tab-actions" class="tab-btn px-6 py-3 font-semibold text-sm text-gray-500 text-black border-b-2 border-black">Email</button>
       </div>
-
       <div id="tab-content" class="p-6 text-sm text-gray-700 space-y-6">
-
                 <!-- Overview -->
         <div id="content-overview">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -705,7 +674,6 @@ Dashboard - InboxOps
             </div>
           </div>
         </div>
-
                 <!-- Details -->
         <div id="content-details" class="hidden">
           <h3 class="text-2xl font-bold mb-4">Order Items</h3>
@@ -724,7 +692,6 @@ Dashboard - InboxOps
             `).join('')}
           </div>
         </div>
-
         <!-- Timeline -->
         <div id="content-timeline" class="hidden">
           <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -746,8 +713,6 @@ Dashboard - InboxOps
             `).join('')}
           </div>
         </div>
-        
-
         <!-- Email Actions -->
         <div id="content-actions" class="hidden">
           <h3 class="font-bold mb-2">📧 Original Email</h3>
@@ -763,10 +728,8 @@ Dashboard - InboxOps
       </div>
     </div>
     `;
-
     modal.classList.remove('hidden');
 };
-
 
     // Function to close the modal
     const closeModalHandler = () => {
@@ -774,7 +737,6 @@ Dashboard - InboxOps
         modalTitle.textContent = ''; // Clear modal title
         modalContent.innerHTML = ''; // Clear modal content
     };
-
     // Add click event listeners to order cards
     orderCards.forEach((card) => {
         card.addEventListener('click', (e) => {
@@ -793,7 +755,6 @@ Dashboard - InboxOps
             }
 
             const tags = Array.from(card.querySelectorAll('.badge-tag')).map(tag => tag.textContent.trim());
-
 const order = {
     id: orderId,
     customerName: customerInfoElement.textContent.trim(),
@@ -807,11 +768,7 @@ const order = {
     rawJson: card.querySelector('.raw-json')?.textContent.trim() || '',
     priority: 'low',
     customerType: 'existing',
-    // items: [
-    //     { name: "Premium Enterprise License", quantity: 50, price: 299, total: 14950, category: "Software" },
-    //     { name: "Priority Support Package", quantity: 1, price: 500, total: 500, category: "Support" },
-    //     { name: "Training Sessions", quantity: 2, price: 150, total: 300, category: "Training" },
-    // ],
+    
     items: (() => {
     const itemsDiv = card.querySelector('.order-items');
     if (itemsDiv && itemsDiv.textContent.trim()) {
@@ -837,17 +794,14 @@ const order = {
             openModal(order);
         });
     });
-
     // Add click event listener to close button
     closeModalButton.addEventListener('click', closeModalHandler);
-
     // Close modal when clicking outside the modal content
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModalHandler();
         }
     });
-
     function getAutomationProgress(order) {
     // Example logic: adjust according to your backend status fields
     let steps = [
@@ -866,17 +820,14 @@ const order = {
         // Hide all tab contents
         const tabContents = document.querySelectorAll('#tab-content > div');
         tabContents.forEach(content => content.classList.add('hidden'));
-
         // Remove active class from all tab buttons
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(button => button.classList.remove('border-black', 'text-black'));
-
         // Show the selected tab content
         const selectedContent = document.getElementById(`content-${tabId}`);
         if (selectedContent) {
             selectedContent.classList.remove('hidden');
         }
-
         // Add active class to the selected tab button
         const selectedButton = document.getElementById(`tab-${tabId}`);
         if (selectedButton) {
@@ -884,30 +835,25 @@ const order = {
         }
     };
 </script>
-
 <script>
 function switchEnquiryTab(tabId) {
     // Hide all tab contents
     const tabContents = document.querySelectorAll('#enquiry-tab-content > div');
     tabContents.forEach(content => content.classList.add('hidden'));
-
     // Remove active class from all tab buttons
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => button.classList.remove('border-black', 'text-black'));
-
     // Show the selected tab content
     const selectedContent = document.getElementById(`enquiry-content-${tabId}`);
     if (selectedContent) {
         selectedContent.classList.remove('hidden');
     }
-
     // Add active class to the selected tab button
     const selectedButton = document.getElementById(`enquiry-tab-${tabId}`);
     if (selectedButton) {
         selectedButton.classList.add('border-black', 'text-black');
     }
 }
-
 document.querySelectorAll('.customer-enquiry-card').forEach(card => {
     card.addEventListener('click', function(e) {
         e.preventDefault();
@@ -1007,7 +953,6 @@ document.querySelectorAll('.customer-enquiry-card').forEach(card => {
         switchEnquiryTab('overview');
     });
 });
-
 document.getElementById('toggleRawJsonBtn').onclick = function() {
     const block = document.getElementById('modalEnquiryRawJsonBlock');
     if (block.classList.contains('hidden')) {
@@ -1034,11 +979,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
   };
-
   document.querySelectorAll('.customer-enquiry-card').forEach(card => {
     card.addEventListener('click', function (e) {
       e.preventDefault();
-
       safeSet('enquiry-modal-title', this.dataset.subject || 'Customer Enquiry');
       safeSet('modalEnquiryStatus', (this.dataset.status || '').toUpperCase());
       safeSet('modalEnquirySender', this.dataset.sender || '');
@@ -1051,7 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
       safeSet('modalEnquiryDetails', this.dataset.summary || '');
       safeSet('modalEnquiryEstimatedValue', this.dataset.estimatedValue ? '$' + this.dataset.estimatedValue : '');
       safeSet('modalEnquiryMailContent', this.dataset.message || '');
-
       // Criticality with class coloring
       const crit = (this.dataset.criticality || 'Medium').toLowerCase();
       const critEl = document.getElementById('modalEnquiryCriticality');
@@ -1063,17 +1005,14 @@ document.addEventListener('DOMContentLoaded', () => {
           crit === 'medium' ? 'bg-yellow-100 text-yellow-700' :
           'bg-green-100 text-green-700');
       }
-
       // Company (from subject)
       const match = (this.dataset.subject || '').match(/- (.+)$/);
       safeSet('modalEnquiryCompany', match ? match[1] : '');
-
       // Static values
       safeSet('modalEnquirySource', 'email');
       safeSet('modalEnquiryResponseTime', '2 hours');
       safeSet('modalEnquiryProcessingTime', '2.5 hours');
       safeSet('modalEnquiryPriority', this.dataset.criticality || 'Medium');
-
       // Tags rendering
       const tagsDiv = document.getElementById('modalEnquiryTags');
       if (tagsDiv) {
@@ -1089,7 +1028,6 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
       }
-
       // Raw JSON
       let rawJson = this.dataset.rawjson || '';
       let prettyJson = '';
@@ -1103,7 +1041,6 @@ document.addEventListener('DOMContentLoaded', () => {
         rawBlock.textContent = prettyJson;
         rawBlock.classList.add('hidden');
       }
-
       // Toggle button setup
       const toggleBtn = document.getElementById('toggleRawJsonBtn');
       if (toggleBtn) {
@@ -1118,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
       }
-
       // Timeline dummy block
       const timeline = document.getElementById('modalEnquiryTimeline');
       if (timeline) {
@@ -1133,18 +1069,15 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
       }
-
       // Open modal
       document.getElementById('customerEnquiryModal')?.classList.remove('hidden');
       switchEnquiryTab('overview');
     });
   });
-
   // Close modal actions
   document.getElementById('closeCustomerEnquiryModal')?.addEventListener('click', () => {
     document.getElementById('customerEnquiryModal')?.classList.add('hidden');
   });
-
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       document.getElementById('customerEnquiryModal')?.classList.add('hidden');
@@ -1158,13 +1091,11 @@ const approvalModal = document.getElementById('approval-modal');
 const approvalTabContent = document.getElementById('approval-tab-content');
 const approvalModalTitle = document.getElementById('approval-modal-title');
 const closeApprovalModalButton = document.getElementById('closeApprovalModal');
-
 function formatDate(dateStr) {
   if (!dateStr || dateStr === "None") return '—';
   const d = new Date(dateStr);
   return isNaN(d) ? '—' : d.toLocaleDateString();
 }
-
 function openApprovalModal(approval) {
   approvalModalTitle.textContent = `${approval.approval_type || 'Approval'} Request${approval.sender ? ' - ' + approval.sender : ''}`;
   // Overview Tab
@@ -1268,7 +1199,6 @@ function openApprovalModal(approval) {
   switchApprovalTab('overview');
   approvalModal.classList.remove('hidden');
 }
-
 function switchApprovalTab(tabId) {
   ['overview', 'details', 'timeline', 'actions'].forEach(t => {
     const el = document.getElementById(`approval-content-${t}`);
@@ -1281,7 +1211,6 @@ function switchApprovalTab(tabId) {
   if (selectedContent) selectedContent.classList.remove('hidden');
   if (selectedButton) selectedButton.classList.add('border-black', 'text-black');
 }
-
 approvalCards.forEach(card => {
   card.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1300,7 +1229,6 @@ approvalCards.forEach(card => {
     openApprovalModal(approval);
   });
 });
-
 closeApprovalModalButton.addEventListener('click', () => {
   approvalModal.classList.add('hidden');
 });
@@ -1308,5 +1236,4 @@ approvalModal.addEventListener('click', (e) => {
   if (e.target === approvalModal) approvalModal.classList.add('hidden');
 });
 </script>
-
 {% endblock %}

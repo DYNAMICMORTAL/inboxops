@@ -111,14 +111,6 @@ async def inbound_email(
 
             return {"status": "✅ Order saved", "summary": summary}
         
-        if is_support_ticket(email_data.subject, email_data.text_body):
-            ticket_data = SupportTicketCreate(
-                sender=payload.get("From"),
-                subject=email_data.subject,
-                message=email_data.text_body,
-                key=payload.get("MessageID")
-            )
-        await create_ticket(db, ticket_data)
 
 
 
@@ -143,6 +135,18 @@ async def inbound_email(
         # --- NEW: Update the summary in the emails table as well ---
         crud.update_email_summary(db, db_email.id, summary, status="Processed")
         return {"status": "approval saved", "approval_type": approval.approval_type}
+    
+    if is_support_ticket(email_data.subject, email_data.text_body):
+        ticket_data = SupportTicketCreate(
+                sender=payload.get("From"),
+                subject=email_data.subject,
+                message=email_data.text_body,
+                key=payload.get("MessageID")
+            )
+        summary = await generate_summary(email_data.text_body)
+        await create_ticket(db, ticket_data)
+        crud.update_email_summary(db, db_email.id, summary, status="Processed")
+        return {"status": "✅ Support ticket created"}
         
 
     if email_data.text_body:
@@ -239,7 +243,10 @@ async def create_ticket(db: Session, ticket_data: SupportTicketCreate):
     tags = extract_customerMail_tags(ticket_data.message)
 
     db_ticket = SupportTicket(
-        **ticket_data.dict(),
+        sender=ticket_data.sender,
+        subject=getattr(ticket_data, "subject", ""),
+        message=ticket_data.message,
+        key=getattr(ticket_data, "key", None),
         summary=summary,
         criticality=criticality,
         tags=",".join(tags)
