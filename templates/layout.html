@@ -7,22 +7,29 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   </head>
   <body class="min-h-screen bg-muted font-sans antialiased">
-    <div class="flex min-h-screen w-full">
+    <div class="flex w-full">
       <!-- Sidebar -->
-      <aside class="bg-gray-50 border-r border-gray-200 min-h-screen flex-shrink-0">
+      <aside class="fixed left-0 top-0 h-screen w-64 bg-gray-50 border-r border-gray-200 z-40">
         {% include 'sidebar.html' %}
       </aside>
 
       <!-- Main content area -->
-      <div class="flex flex-col flex-1 min-h-screen">
-        <!-- Header -->
-        {% include 'header.html' %}
+      <div class="flex flex-col flex-1 min-h-screen ml-64">
+      <!-- Header -->
+      {% include 'header.html' %}
 
-        <!-- Page Content -->
-        <main class="flex-1 p-4">
-          {% block content %}{% endblock %}
-        </main>
-      </div>
+      <!-- Page Content -->
+      <main class="flex-1 p-4">
+        {% block content %}{% endblock %}
+      </main>
+  </div>
+
+      <!-- Footer -->
+      <!-- <footer class="bg-gray-100 text-gray-600 py-4 px-6 border-t border-gray-200">
+        <div class="container mx-auto text-center">
+          <p class="text-sm">&copy; 2025 InboxOps. All rights reserved.</p>
+        </div>
+      </footer> -->
     </div>
     
     <!-- AI Chat Modal -->

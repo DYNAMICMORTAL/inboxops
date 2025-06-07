@@ -13,7 +13,7 @@ router = APIRouter()
 
 # -- Postmark Config --
 POSTMARK_TOKEN = "78a92885-74e3-42b0-8164-0b72fca59305"
-FROM_EMAIL = "inboxops@yourdomain.com"  # Set this to your sender domain
+FROM_EMAIL = "inboxops@yourdomain.com"
 postmark = PostmarkClient(server_token=POSTMARK_TOKEN)
 
 # -- Get DB --
@@ -218,7 +218,7 @@ User question: {user_input}
 Answer as helpfully and accurately as possible in verbose, using the above data. Do not say you cannot access emails; you have the above data.
 """
 
-    # Call Gemini or your LLM
+
     # answer = await generate_summary(context)
     # Build chat history for Gemini
     messages = [

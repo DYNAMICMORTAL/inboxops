@@ -53,7 +53,7 @@ from datetime import datetime, timedelta
 
 templates = Jinja2Templates(directory="templates")
 templates.env.filters["date"] = format_date
-templates.env.globals["now"] = datetime.now  # Add `now` to Jinja2 globals
+templates.env.globals["now"] = datetime.now 
 
 from .webhook import router as webhook_router
 
@@ -86,11 +86,6 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
 def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
     return templates.TemplateResponse("home.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
-
-@app.get("/a", response_class=HTMLResponse)
-def home_another(request: Request, db: Session = Depends(get_db)):
-    emails = crud.get_emails(db, limit=20)
-    return templates.TemplateResponse("homeAnother.html", {"request": request, "emails": emails, "check_email_status": check_email_status})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
@@ -306,7 +301,7 @@ def unified_view(request: Request, page: str = "inbox", db: Session = Depends(ge
             avg_processing_time = sum(
                 [(datetime.now() - e.received_at).total_seconds() for e in processed_times]
             ) / len(processed_times)
-            avg_processing_time = round(avg_processing_time / 60, 2)  # in minutes
+            avg_processing_time = round(avg_processing_time / 60, 2)
 
         return templates.TemplateResponse(
             "dashboard.html",
@@ -340,7 +335,6 @@ def new_chat(request: Request, db: Session = Depends(get_db)):
 @app.get("/support-customer", response_class=HTMLResponse)
 def support_chat(request: Request, db: Session = Depends(get_db)):
     tickets = db.query(models.SupportTicket).order_by(models.SupportTicket.created_at.desc()).limit(20).all()
-    # Convert SQLAlchemy models to dicts
     tickets_dict = []
     for t in tickets:
         tickets_dict.append({
@@ -356,8 +350,6 @@ def support_chat(request: Request, db: Session = Depends(get_db)):
             "key": t.key,
             "assigned_to": t.assigned_to,
             "created_at": t.created_at.strftime('%b %d, %Y %H:%M') if t.created_at else "",
-            # Add any other fields you need for your frontend
             "postmarkData": t.raw_json if hasattr(t, "raw_json") else {},
-            # You can add more fields as needed
         })
     return templates.TemplateResponse("support_customer.html", {"request": request, "tickets": tickets_dict})

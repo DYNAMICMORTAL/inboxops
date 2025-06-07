@@ -31,7 +31,7 @@ class Email(Base):
     status = Column(String, default=EmailStatus.NEW)
     order_items = Column(JSON, nullable=True)  # Store extracted order items
     tags = Column(JSON, nullable=True)  # Store extracted tags
-    raw_json = Column(JSON, nullable=True)  # <-- Add this line
+    raw_json = Column(JSON, nullable=True)
 
 class Order(Base):
     __tablename__ = "orders"
@@ -43,21 +43,21 @@ class Order(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     key = Column(String, unique=True)
     total_value = Column(Float, nullable=True)
-    order_items = Column(JSON, nullable=True)  # <-- add this line if you want
-    tags = Column(JSON, nullable=True)         # <-- add this line if you want
-    received = Column(Integer, default=0)   # <-- Add this line (use Integer for SQLite Boolean)
-    processed = Column(Integer, default=0)  # <-- Add this line
+    order_items = Column(JSON, nullable=True)
+    tags = Column(JSON, nullable=True)
+    received = Column(Integer, default=0)
+    processed = Column(Integer, default=0) 
 
 class Approval(Base):
     __tablename__ = "approvals"
     id = Column(Integer, primary_key=True, index=True)
     sender = Column(String)
-    approval_type = Column(String)  # e.g., Leave, Budget
+    approval_type = Column(String)
     request_text = Column(String)
-    status = Column(String, default="Pending")  # Pending / Approved / Rejected
+    status = Column(String, default="Pending") 
     summary = Column(Text, nullable=True)
-    start_date = Column(DateTime, nullable=True)  # Add start_date
-    end_date = Column(DateTime, nullable=True)    # Add end_date
+    start_date = Column(DateTime, nullable=True) 
+    end_date = Column(DateTime, nullable=True) 
     created_at = Column(DateTime, default=datetime.utcnow)
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, func

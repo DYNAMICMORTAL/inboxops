@@ -6,8 +6,6 @@ def is_order_email(subject: str, body: str) -> bool:
     return any(keyword in subject.lower() for keyword in order_keywords)
 
 def extract_order_details(body: str) -> dict:
-    # This is mock logic, you can replace with OpenAI LLM later
-    # For now, extract product and quantity using simple pattern
     match = re.search(r"Product: (.*?), Quantity: (\d+), USD\s*([\d,]+\.\d{2})", body)
     if match:
         product = match.group(1).strip()
@@ -16,7 +14,7 @@ def extract_order_details(body: str) -> dict:
         return {
             "product": product,
             "quantity": quantity,
-            "customer": "Unknown",  # Can improve with LLM later
+            "customer": "Unknown",
             "total_value": total_value
         }
     return None
@@ -25,7 +23,6 @@ def extract_order_details(body: str) -> dict:
 import os
 import google.generativeai as genai
 
-# Directly set your Gemini API key here (replace with your actual key)
 api_key = os.getenv("GOOGLE_API_KEY", "AIzaSyB6SX989AFFnpD__XOi2Zcrg1RFPy35BsA")
 genai.configure(api_key=api_key)
 
@@ -64,11 +61,11 @@ def extract_order_details(body: str) -> dict:
 
 async def generate_order_summary(product: str, quantity: int) -> str:
     prompt = f"A customer placed an order for {quantity} units of {product}. Summarize this order in one sentence."
-    print(f"Generating summary with prompt: {prompt}")  # Debugging log
+    print(f"Generating summary with prompt: {prompt}")
     model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
     try:
         response = await model.generate_content_async(prompt)
-        print(f"Response received: {response}")  # Debugging log
+        print(f"Response received: {response}")
         if response.text:
             return response.text.strip()
         else:
@@ -76,7 +73,7 @@ async def generate_order_summary(product: str, quantity: int) -> str:
                 return f"Summarization failed: {response.prompt_feedback.block_reason_message or response.prompt_feedback.block_reason}"
             return "Summarization failed: No content generated."
     except Exception as e:
-        print(f"Error generating summary: {e}")  # Debugging log
+        print(f"Error generating summary: {e}")
         return f"Error generating summary: {e}"
     
 
@@ -155,7 +152,6 @@ def extract_approval_details(body: str):
         start_date = datetime.strptime(dates_text[0], "%B %d, %Y")
         end_date = datetime.strptime(dates_text[1], "%B %d, %Y")
 
-    # Debugging
     print(f"Extracted Start Date: {start_date}, End Date: {end_date}")
 
     # Basic rule-based extraction
@@ -311,7 +307,6 @@ def extract_tags(body: str) -> list:
         "order-completed": ["order completed", "fulfilled", "shipped"],
         "order-canceled": ["order canceled", "cancellation confirmed", "order terminated"]
     }
-    # Check for keywords in the email body
     for tag, keywords in tag_keywords.items():
         if any(keyword in body.lower() for keyword in keywords):
             inferred_tags.append(tag)

@@ -7,13 +7,11 @@ from .utils import extract_order_items, extract_tags, extract_approval_details, 
 
 def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
     date_num = datetime.now().strftime('%Y%m%d')
-    # Get count of emails of each type for today
     count = db.query(models.Email).filter(
         models.Email.received_at >= datetime.now().date()
     ).count()
     
     while True:
-        # Determine email type and generate key
         if is_order_email(email.subject, email.text_body):
             email_type = "ORDER"
             key = f"ODR-{date_num}{count+1:04d}"
@@ -61,9 +59,9 @@ def create_email(db: Session, email: schemas.EmailCreate, raw_json=None):
         html_body=email.html_body,
         type=email_type,
         key=key,
-        order_items=order_items,  # Save extracted order items
-        tags=tags, # Save extracted tags
-        raw_json=raw_json,  # <-- Add this
+        order_items=order_items,
+        tags=tags,
+        raw_json=raw_json,
     )
     
     db.add(db_email)
@@ -130,12 +128,10 @@ def create_approval_from_email(email, db: Session):
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            # If already in an event loop (e.g., FastAPI), use create_task
             summary = ""
             async def get_summary():
                 return await generate_summary(approval_details["request_text"])
             task = loop.create_task(get_summary())
-            # You may want to await this in your async context
         else:
             summary = loop.run_until_complete(generate_summary(approval_details["request_text"]))
     except Exception as e:
