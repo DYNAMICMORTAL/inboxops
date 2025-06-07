@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from . import crud, schemas, ai
-from .ai import generate_summary  # Import the missing function
+from .ai import generate_summary, generate_auto_reply  # Import the missing functions
 from .database import SessionLocal
 from .models import Order, Approval, SupportTicket, HRRequest
 from .utils import is_order_email, extract_order_details, generate_order_summary, is_approval_email, extract_approval_details, extract_order_items, extract_tags, is_support_ticket
@@ -152,6 +152,16 @@ async def inbound_email(
         summary = await ai.generate_summary(email_data.text_body)
         crud.update_email_summary(db, db_email.id, summary)
 
+    auto_reply = await generate_auto_reply(payload)
+
+    postmark.emails.send(
+        From=FROM_EMAIL,
+        To=payload.get("From"),
+        Subject=f"Re: {payload.get('Subject', '')}",
+        HtmlBody=auto_reply.replace('\n', '<br>'),
+        TextBody=auto_reply
+    )
+
     return {"message": "📩 Email received and processed"}
 
 
@@ -257,3 +267,10 @@ async def create_ticket(db: Session, ticket_data: SupportTicketCreate):
 
 def get_all_tickets(db: Session):
     return db.query(SupportTicket).order_by(SupportTicket.created_at.desc()).all()
+
+
+from postmarker.core import PostmarkClient
+
+POSTMARK_TOKEN = "78a92885-74e3-42b0-8164-0b72fca59305"
+FROM_EMAIL = "inboxops@yourdomain.com"
+postmark = PostmarkClient(server_token=POSTMARK_TOKEN)
