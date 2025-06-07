@@ -148,7 +148,6 @@ async def inbound_email(
         crud.update_email_summary(db, db_email.id, summary, status="Processed")
         return {"status": "✅ Support ticket created"}
         
-
     if email_data.text_body:
         summary = await ai.generate_summary(email_data.text_body)
         crud.update_email_summary(db, db_email.id, summary)
