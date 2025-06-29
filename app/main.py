@@ -82,6 +82,37 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Email not found")
     return email
 
+@app.get("/emails/{email_id}/view", response_class=HTMLResponse)
+def view_email(email_id: int, request: Request, db: Session = Depends(get_db)):
+    email = crud.get_email(db, email_id)
+    if email is None:
+        raise HTTPException(status_code=404, detail="Email not found")
+    
+    # Find related items
+    related_order = None
+    related_approval = None
+    related_ticket = None
+    
+    if email.key:
+        related_order = db.query(Order).filter(Order.key == email.key).first()
+    
+    if email.from_email:
+        related_approval = db.query(Approval).filter(Approval.sender == email.from_email).first()
+        related_ticket = db.query(models.SupportTicket).filter(models.SupportTicket.sender == email.from_email).first()
+    
+    # Import macros module for the template
+    from . import utils
+    
+    return templates.TemplateResponse("email_detail.html", {
+        "request": request,
+        "email": email,
+        "related_order": related_order,
+        "related_approval": related_approval,
+        "related_ticket": related_ticket,
+        "check_email_status": check_email_status,
+        # "macros": mac ros  # Add macros to context if needed
+    })
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     emails = crud.get_emails(db, limit=20)
@@ -353,3 +384,33 @@ def support_chat(request: Request, db: Session = Depends(get_db)):
             "postmarkData": t.raw_json if hasattr(t, "raw_json") else {},
         })
     return templates.TemplateResponse("support_customer.html", {"request": request, "tickets": tickets_dict})
+
+from fastapi.responses import StreamingResponse
+import csv
+from io import StringIO
+
+@app.get("/export")
+def export_tickets(db: Session = Depends(get_db)):
+    tickets = db.query(models.SupportTicket).order_by(models.SupportTicket.created_at.desc()).all()
+    si = StringIO()
+    writer = csv.writer(si)
+    # Write header
+    writer.writerow(["ID", "Sender", "Subject", "Message", "Category", "Criticality", "Status", "Summary", "Tags", "Key", "Assigned To", "Created At"])
+    # Write rows
+    for t in tickets:
+        writer.writerow([
+            t.id, t.sender, t.subject, t.message, t.category, t.criticality, t.status,
+            t.summary, t.tags, t.key, t.assigned_to, t.created_at.strftime('%Y-%m-%d %H:%M')
+        ])
+    si.seek(0)
+    return StreamingResponse(si, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=support_tickets.csv"})
+
+from fastapi.responses import RedirectResponse
+
+@app.get("/sync")
+def sync_tickets(db: Session = Depends(get_db)):
+    # Place your sync logic here (e.g., re-fetch from Postmark, re-run classification, etc.)
+    # For now, just redirect back to the support tickets page with a success message.
+    # You can add flash messages or logs as needed.
+    # Example: sync_support_tickets(db)
+    return RedirectResponse(url="/support-customer", status_code=302)

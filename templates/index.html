@@ -85,9 +85,9 @@ Inbox - InboxOps
             </thead>
             <tbody>
                 {% for email in emails %}
-                <tr class="email-row">
+                <tr class="email-row cursor-pointer hover:bg-gray-50" onclick="window.location.href='/emails/{{ email.id }}/view'">
                     <td>
-                        <input type="checkbox" class="email-checkbox" />
+                        <input type="checkbox" class="email-checkbox" onclick="event.stopPropagation()" />
                     </td>
                     <td>
                         {% if email.type == "ORDER" %}
@@ -101,7 +101,11 @@ Inbox - InboxOps
                         {% endif %}
                     </td>
                     <td>{{ email.key }}</td>
-                    <td>{{ email.subject }}</td>
+                    <td class="font-medium">
+                        <a href="/emails/{{ email.id }}/view" class="text-blue-600 hover:text-blue-800 hover:underline">
+                            {{ email.subject }}
+                        </a>
+                    </td>
                     <td>{{ email.from_email }}</td>
                     <td>
                         {% set related_summary = None %}
